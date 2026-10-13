@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Insaba Pratista Agya</title>
+  <link rel="stylesheet" href="css/style.css?v=1.5">
+</head>
+
+<body class="login-page siswa-bg-pattern">
+
+  <div class="geo geo-top">
+  <span class="shape shape-blue"></span>
+  <span class="shape shape-orange"></span>
+  <span class="shape shape-light"></span>
+
+  <span class="shape shape-small-blue"></span>
+  <span class="shape shape-small-orange"></span>
+  <span class="shape shape-small-light"></span>
+</div>
+
+  <div class="geo geo-bottom">
+  <span class="shape shape-blue"></span>
+  <span class="shape shape-orange"></span>
+  <span class="shape shape-light"></span>
+
+  <span class="shape shape-small-blue"></span>
+  <span class="shape shape-small-orange"></span>
+  <span class="shape shape-small-light"></span>
+</div>
+<div class="login-logos">
+  <img src="img/husein.png.png" alt="Logo SMK Angkasa" class="login-corner-logo">
+   <span class="logo-collab">×</span>
+  <img src="img/insaba.png" alt="Logo Insaba Pratista" class="login-corner-logo">
+</div>
+  <div class="auth-container">
+    <div class="auth-card">
+
+       
+      <h1>INSABA PRATISTA AGYA</h1>
+      <p class="subtitle">Sistem Absensi dan Monitoring PKL</p>
+
+      <form id="loginForm">
+
+        <div class="form-group">
+  <label for="email">Email</label>
+
+  <div class="input-icon">
+    <span>✉</span>
+    <input
+      type="email"
+      id="email"
+      placeholder="Masukkan email"
+      required
+      autocomplete="off"
+    >
+  </div>
+</div>
+
+       <div class="form-group">
+  <label for="password">Password</label>
+
+  <div class="input-icon password-input">
+    <span class="user-icon">♙</span>
+
+    <input
+      type="password"
+      id="password"
+      placeholder="Masukkan password"
+      required
+    >
+
+    <button
+  type="button"
+  class="toggle-password"
+  id="togglePassword"
+  aria-label="Tampilkan password"
+>
+  <svg id="eyeIcon" viewBox="0 0 24 24" aria-hidden="true">
+    <!-- Mata normal -->
+    <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/>
+    <circle cx="12" cy="12" r="2.5"/>
+  </svg>
+</button>
+
+  </div>
+
+  
+
+  <p id="loginError" class="login-error"></p>
+</div>
+        <button type="submit" class="btn btn-primary">
+          Masuk
+        </button>
+
+      </form>
+
+      <div class="demo-info">
+        <small><strong>Akun Uji Coba</strong></small><br>
+        <small>Siswa: <code>siswa@pkl.com</code> | Pass: <code>123</code></small><br>
+        <small>Pembimbing: <code>pembimbing@pkl.com</code> | Pass: <code>123</code></small>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script src="js/api.js"></script>
+ <script>
+  const togglePassword = document.getElementById("togglePassword");
+  const passwordInput = document.getElementById("password");
+  const eyeIcon = document.getElementById("eyeIcon");
+
+  togglePassword.addEventListener("click", function () {
+
+    if (passwordInput.type === "password") {
+
+      // Tampilkan password
+      passwordInput.type = "text";
+
+      // Mata dicoret satu garis diagonal
+      eyeIcon.innerHTML = `
+        <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/>
+        <circle cx="12" cy="12" r="2.5"/>
+        <path d="M4 4L20 20"/>
+      `;
+
+      this.setAttribute("aria-label", "Sembunyikan password");
+
+    } else {
+
+      // Sembunyikan password
+      passwordInput.type = "password";
+
+      // Mata normal
+      eyeIcon.innerHTML = `
+        <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/>
+        <circle cx="12" cy="12" r="2.5"/>
+      `;
+
+      this.setAttribute("aria-label", "Tampilkan password");
+
+    }
+  });
+
+  
+  
+</script>
+</body>
+</html>

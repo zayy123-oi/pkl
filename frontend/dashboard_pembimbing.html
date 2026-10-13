@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Pembimbing - Sistem PKL</title>
+  <link rel="stylesheet" href="css/style.css?v=1.5">
+</head>
+<body class="pembimbing-page">
+  <header class="navbar">
+  <h3>Selamat Datang, <span id="userNama">Pembimbing</span></h3>
+
+  
+<div class="user-profile">
+  <div id="realtime-clock" class="realtime-clock">
+    <div id="clock-time">00:00:00 WIB</div>
+    <div id="clock-date">Memuat tanggal...</div>
+  </div>
+
+  <button type="button" class="btn btn-danger btn-sm" id="btnLogout" onclick="logout()">keluar</button>
+</div>
+
+</header>
+
+  <main class="container">
+    <!-- Periode PKL Siswa -->
+<section class="card periode-pkl-pembimbing">
+  <div class="periode-header">
+  <h2>Periode PKL Siswa</h2>
+</div>
+
+  <div class="form-group">
+    <label for="siswaPkl">Pilih Siswa</label>
+    <select id="siswaPkl" required>
+      <option value="">-- Pilih Siswa --</option>
+    </select>
+  </div>
+
+  <div class="form-grid">
+    <div class="form-group">
+      <label for="startPkl">Mulai PKL</label>
+      <input type="date" id="startPkl">
+    </div>
+
+    <div class="form-group">
+      <label for="endPkl">Selesai PKL</label>
+      <input type="date" id="endPkl">
+    </div>
+  </div>
+
+  <button type="button" class="btn btn-primary" id="btnSimpanPkl">
+    Simpan Periode PKL
+  </button>
+
+  <div class="table-responsive" style="margin-top: 2rem;">
+    <h3>Daftar Periode PKL Siswa</h3>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nama Siswa</th>
+          <th>Tanggal Mulai</th>
+          <th>Tanggal Selesai</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+
+      <tbody id="tabelPeriodePkl">
+        <!-- Data periode siswa akan ditampilkan di sini -->
+      </tbody>
+    </table>
+  </div>
+  
+</section>
+    <!-- Menu Beri Tugas -->
+<section class="card">
+  <h2>Menu Beri Tugas</h2>
+
+  <form id="formBeriTugas">
+
+    <div class="form-group">
+      <label for="siswaTugas">Pilih Siswa</label>
+      <select id="siswaTugas" required>
+        <option value="">-- Pilih Siswa --</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="judulTugasBaru">Judul Tugas</label>
+      <input type="text" id="judulTugasBaru" placeholder="Judul tugas..." required>
+    </div>
+
+    <div class="form-group">
+      <label for="deskripsiTugas">Deskripsi Tugas</label>
+      <textarea id="deskripsiTugas" rows="2" placeholder="Detail instruksi..." required></textarea>
+    </div>
+
+    
+
+   
+<div class="form-group">
+  <label for="deadlineTugas">Deadline</label>
+  <input type="datetime-local" id="deadlineTugas" step="1" required>
+</div>
+
+<script>
+  function setMinimumDeadline() {
+    const deadlineInput = document.getElementById("deadlineTugas");
+    if (!deadlineInput) return;
+
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60000;
+    const localNow = new Date(now.getTime() - offset);
+
+    deadlineInput.min = localNow.toISOString().slice(0, 16);
+  }
+
+  setMinimumDeadline();
+  setInterval(setMinimumDeadline, 1000);
+</script>
+
+
+    <button type="submit" class="btn btn-primary">
+      Kirim Tugas ke Siswa
+    </button>
+
+  </form>
+</section>
+
+    <!-- Menu Rekap Absensi Siswa -->
+    <section class="card">
+      <h2>Rekap Absensi Siswa</h2>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nama Siswa</th>
+              <th>Waktu Masuk</th>
+              <th>Waktu Keluar</th>
+              <th>Status</th>
+              <th>Keterangan</th>
+            </tr>
+          </thead>
+          <tbody id="tabelAbsensiPembimbing"></tbody>
+        </table>
+      </div>
+    </section>
+
+        <!-- Menu Status Progress Tugas -->
+    <section class="card">
+      <h2>Status Progress Tugas Siswa</h2>
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nama Siswa</th>
+              <th>Judul Tugas</th>
+              <th>Deskripsi</th>
+              <th>Deadline</th>
+              <th>Mulai Tugas</th>
+              <th>Status Progress</th>
+            </tr>
+          </thead>
+
+          <tbody id="tabelTugasPembimbing"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Menu Pantau & Review -->
+    <section class="card">
+      <h2>Menu Pantau & Review Laporan Siswa</h2>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Nama Siswa</th>
+              <th>Isi Laporan</th>
+              <th>Status Review</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tabelReviewPembimbing"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <script src="js/api.js"></script>
+  
+  <script type="module" src="js/main.js"></script>
+  
+<script>
+  function updateRealtimeClock() {
+    const timeElement = document.getElementById("clock-time");
+    const dateElement = document.getElementById("clock-date");
+
+    if (!timeElement || !dateElement) return;
+
+    const now = new Date();
+
+    timeElement.textContent =
+      new Intl.DateTimeFormat("id-ID", {
+        timeZone: "Asia/Jakarta",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+      }).format(now) + " WIB";
+
+    dateElement.textContent =
+      new Intl.DateTimeFormat("id-ID", {
+        timeZone: "Asia/Jakarta",
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      }).format(now);
+  }
+
+  updateRealtimeClock();
+  setInterval(updateRealtimeClock, 1000);
+</script>
+
+  <script>
+    async function setujuiLaporan(reportId) {
+    const komentar = prompt("Masukkan komentar untuk siswa:");
+    if (komentar === null) return;
+
+    const token = localStorage.getItem("access_token");
+
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/api/reports/${reportId}`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                status_review: "Disetujui",
+                komentar_pembimbing: komentar
+            })
+        });
+
+        if (response.ok) {
+            alert("Laporan berhasil disetujui!");
+            location.reload();
+        } else {
+            const errData = await response.json();
+            alert("Gagal memperbarui laporan: " + (errData.detail || response.statusText));
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Terjadi kesalahan koneksi ke server.");
+    }
+}
+    </script>
+</body>
+</html>

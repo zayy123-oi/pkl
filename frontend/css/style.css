@@ -1,0 +1,3240 @@
+/* ==========================================
+   1. COLOR VARIABLES
+   ========================================== */
+:root {
+  --siswa-nav-bg: linear-gradient(135deg, #075985 0%, #0284c7 100%);
+  --siswa-primary: #2563eb;
+   --pembimbing-primary: #f97316;
+  --pembimbing-primary-dark: #ea580c;
+  --pembimbing-primary-light: #fff7ed;
+  --pembimbing-border: #fed7aa;
+
+  --siswa-primary-hover: #1d4ed8;
+  --siswa-card-border: #bae6fd;
+  --siswa-header-text: #1e3a8a;
+  --siswa-accent-bg: #eff6ff;
+  --siswa-focus-ring: rgba(37, 99, 235, 0.2);
+
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --text-dark: #0f172a;
+  --text-muted: #64748b;
+}
+
+/* ==========================================
+   2. BASE RESET & BACKGROUND PATTERN
+   ========================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Pattern Background */
+body.siswa-page.siswa-bg-pattern {
+  min-height: 100vh;
+
+  background:
+
+    /* GARIS DIAGONAL CYAN */
+    linear-gradient(
+      135deg,
+      transparent 0%,
+      transparent 18%,
+      rgba(14, 165, 233, 0.09) 18.2%,
+      rgba(14, 165, 233, 0.09) 18.6%,
+      transparent 18.8%
+    ),
+
+    /* GARIS DIAGONAL BIRU */
+    linear-gradient(
+      135deg,
+      transparent 0%,
+      transparent 42%,
+      rgba(7, 89, 133, 0.07) 42.2%,
+      rgba(7, 89, 133, 0.07) 42.6%,
+      transparent 42.8%
+    ),
+
+    /* GARIS DIAGONAL ORANGE */
+    linear-gradient(
+      135deg,
+      transparent 0%,
+      transparent 65%,
+      rgba(249, 115, 22, 0.08) 65.2%,
+      rgba(249, 115, 22, 0.08) 65.6%,
+      transparent 65.8%
+    ),
+
+    /* POLA GEOMETRI TIPIS */
+    repeating-linear-gradient(
+      45deg,
+      transparent 0,
+      transparent 75px,
+      rgba(7, 89, 133, 0.025) 76px,
+      rgba(7, 89, 133, 0.025) 77px,
+      transparent 78px,
+      transparent 150px
+    ),
+
+    /* LINGKARAN CYAN KANAN ATAS */
+    radial-gradient(
+      circle at 100% 0%,
+      transparent 0,
+      transparent 120px,
+      rgba(14, 165, 233, 0.14) 121px,
+      rgba(14, 165, 233, 0.14) 140px,
+      transparent 141px
+    ),
+
+    /* LINGKARAN ORANGE KANAN ATAS */
+    radial-gradient(
+      circle at 100% 0%,
+      transparent 0,
+      transparent 155px,
+      rgba(249, 115, 22, 0.09) 156px,
+      rgba(249, 115, 22, 0.09) 172px,
+      transparent 173px
+    ),
+
+    /* LINGKARAN CYAN KIRI BAWAH */
+    radial-gradient(
+      circle at 0% 100%,
+      transparent 0,
+      transparent 115px,
+      rgba(56, 189, 248, 0.14) 116px,
+      rgba(56, 189, 248, 0.14) 138px,
+      transparent 139px
+    ),
+
+    /* LINGKARAN ORANGE KIRI BAWAH */
+    radial-gradient(
+      circle at 0% 100%,
+      transparent 0,
+      transparent 145px,
+      rgba(249, 115, 22, 0.08) 146px,
+      rgba(249, 115, 22, 0.08) 160px,
+      transparent 161px
+    ),
+
+    /* WARNA DASAR */
+    linear-gradient(
+      135deg,
+      #dff4fc 0%,
+      #f3fafe 45%,
+      #ffffff 60%,
+      #e8f7fc 100%
+    );
+
+  background-attachment: fixed;
+}
+
+/* Layout Dashboard */
+body.siswa-page {
+  min-height: 100vh;
+  color: #334155;
+  display: block;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 2.5rem auto;
+  padding: 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ==========================================
+   3. AUTH / LOGIN PAGE (PASTI KETENGAH)
+   ========================================== */
+body.login-page {
+  min-height: 100vh;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 0;
+  padding: 1rem;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  justify-content: center;
+}
+
+.auth-card {
+  width: 100%;
+  background: #ffffff;
+  padding: 2.5rem 2rem;
+  border-radius: 16px;
+  border: 1px solid var(--siswa-card-border);
+  border-top: 5px solid var(--siswa-primary);
+  box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.15);
+}
+
+.auth-card h2 {
+  font-size: 1.5rem;
+  color: var(--siswa-header-text);
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.subtitle {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 1.8rem;
+}
+
+.form-group {
+  margin-bottom: 1.2rem;
+}
+
+label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.5rem;
+}
+
+input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  background-color: #f8fafc;
+  color: var(--text-dark);
+}
+
+input:focus {
+  outline: none;
+  background-color: #ffffff;
+  border-color: var(--siswa-primary);
+  box-shadow: 0 0 0 4px var(--siswa-focus-ring);
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: var(--siswa-primary);
+  color: #ffffff;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.demo-info {
+  margin-top: 1.8rem;
+  padding-top: 1.2rem;
+  border-top: 1px dashed #cbd5e1;
+  color: #475569;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.demo-info code {
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--siswa-primary);
+}
+
+/* ==========================================
+   4. HEADER / NAVBAR (DASHBOARD)
+   ========================================== */
+.navbar {
+  background: var(--siswa-nav-bg);
+  color: #ffffff;
+  padding: 1.1rem 2.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(30, 58, 138, 0.25);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+
+
+
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* ==========================================
+   5. CARDS & GRID LAYOUT
+   ========================================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2rem;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.96);
+  padding: 2.2rem;
+  border-radius: 16px;
+  border: 1px solid var(--siswa-card-border);
+  border-top: 5px solid var(--siswa-primary);
+  box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.08);
+}
+
+.card h2 {
+  font-size: 1.35rem;
+  color: var(--siswa-header-text);
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--siswa-accent-bg);
+}
+
+/* ==========================================
+   6. TABLES & FORMS (DASHBOARD)
+   ========================================== */
+.table-responsive {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  margin-top: 0.8rem;
+  background: #ffffff;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+
+.table th {
+  background-color: #dce3eb;
+  color: #334155;
+  padding: 0.95rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-bottom: 2px solid #c2ccd8;
+}
+
+
+.table td {
+  padding: 0.95rem 1.1rem;
+  border-top: 1px solid #e2e8f0;
+  font-size: 0.9rem;
+}
+
+.table th,
+.table td {
+  border: 1px solid #cbd5e1;
+}
+
+
+/* Semua baris isi tabel: biru sangat lembut */
+.table tbody td {
+  background-color: #F3F8FD !important;
+  color: #334155;
+}
+
+/* Efek hover: sedikit lebih biru */
+.table tbody tr:hover td {
+  background-color: #EAF3FC !important;
+}
+
+
+
+textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  background-color: #f8fafc;
+}
+
+/* ==========================================
+   EKSKLUSIF DASHBOARD SISWA (DESAIN GAMBAR 2)
+   ========================================== */
+
+/* Aksen garis biru tegak di samping judul h2 */
+.card h2 {
+  position: relative;
+  padding-left: 1rem;
+  border-bottom: none;
+}
+
+.card h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 15%;
+  bottom: 15%;
+  width: 5px;
+  background-color: #2563eb;
+  border-radius: 4px;
+}
+
+/* Tombol Absen Masuk & Absen Keluar BERWARNA */
+.absen-actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.absen-actions .btn-success {
+  background-color: #10b981 !important;
+  color: #ffffff !important;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
+}
+
+.absen-actions .btn-warning {
+  background-color: #f59e0b !important;
+  color: #ffffff !important;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3);
+}
+
+/* Layout Form Absensi Menyamping (Grid 2 Kolom) */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+select#statusAbsen {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  background-color: #f8fafc;
+}
+
+/* Tombol Logout Merah Presisi */
+.btn-danger {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+}
+
+/* Pilihan style untuk memastikan card login tidak melebar */
+.auth-container {
+  width: 100% !important;
+  max-width: 400px !important;
+  margin: 0 auto !important;
+}
+
+.auth-card {
+  width: 100% !important;
+  max-width: 400px !important;
+  box-sizing: border-box !important;
+}
+
+/* Fix Responsive Card untuk Window Sempit / Preview VS Code */
+.auth-card {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 400px !important;
+  margin: 0 auto !important;
+}
+
+@media (max-width: 480px) {
+  body.login-page {
+    padding: 0.5rem !important;
+  }
+  
+  .auth-card {
+    padding: 1.5rem 1rem !important; /* Memperkecil padding agar tidak sesak di layar sempit */
+  }
+}
+
+/* ==========================================
+   LOGIN INDEX - INSABA PRATISTA AGYA
+   ========================================== */
+
+body.login-page {
+  background:
+
+  /* GARIS DIAGONAL BIRU */
+linear-gradient(
+  135deg,
+  transparent 0%,
+  transparent 20%,
+  rgba(14, 165, 233, 0.045) 20.2%,
+  rgba(14, 165, 233, 0.045) 20.5%,
+  transparent 20.7%
+),
+
+/* GARIS DIAGONAL BIRU 2 */
+linear-gradient(
+  135deg,
+  transparent 0%,
+  transparent 38%,
+  rgba(14, 165, 233, 0.04) 38.2%,
+  rgba(14, 165, 233, 0.04) 38.5%,
+  transparent 38.7%
+),
+
+/* GARIS DIAGONAL ORANGE */
+linear-gradient(
+  135deg,
+  transparent 0%,
+  transparent 55%,
+  rgba(249, 115, 22, 0.035) 55.2%,
+  rgba(249, 115, 22, 0.035) 55.5%,
+  transparent 55.7%
+),
+
+/* GARIS DIAGONAL BIRU 3 */
+linear-gradient(
+  135deg,
+  transparent 0%,
+  transparent 72%,
+  rgba(14, 165, 233, 0.035) 72.2%,
+  rgba(14, 165, 233, 0.035) 72.5%,
+  transparent 72.7%
+),
+
+/* GARIS DIAGONAL ORANGE 2 */
+linear-gradient(
+  135deg,
+  transparent 0%,
+  transparent 88%,
+  rgba(249, 115, 22, 0.03) 88.2%,
+  rgba(249, 115, 22, 0.03) 88.5%,
+  transparent 88.7%
+),
+
+    /* GARIS DIAGONAL BIRU */
+    linear-gradient(
+      135deg,
+      transparent 0%,
+      transparent 48%,
+      rgba(14, 165, 233, 0.045) 48.2%,
+      rgba(14, 165, 233, 0.045) 48.5%,
+      transparent 48.7%
+    ),
+
+    /* GARIS DIAGONAL ORANGE */
+    linear-gradient(
+      135deg,
+      transparent 0%,
+      transparent 72%,
+      rgba(249, 115, 22, 0.035) 72.2%,
+      rgba(249, 115, 22, 0.035) 72.5%,
+      transparent 72.7%
+    ),
+
+    /* POLA GEOMETRI TIPIS */
+    repeating-linear-gradient(
+      45deg,
+      transparent 0,
+      transparent 55px,
+      rgba(7, 89, 133, 0.025) 56px,
+      rgba(7, 89, 133, 0.025) 57px,
+      transparent 58px,
+      transparent 110px
+    ),
+
+    /* LINGKARAN KANAN ATAS */
+    radial-gradient(
+      circle at 95% 18%,
+      transparent 0,
+      transparent 135px,
+      rgba(14, 165, 233, 0.14) 136px,
+      rgba(14, 165, 233, 0.14) 154px,
+      transparent 155px
+    ),
+
+    radial-gradient(
+      circle at 95% 18%,
+      transparent 0,
+      transparent 175px,
+      rgba(249, 115, 22, 0.10) 176px,
+      rgba(249, 115, 22, 0.10) 194px,
+      transparent 195px
+    ),
+
+    /* LINGKARAN KIRI BAWAH */
+    radial-gradient(
+      circle at 7% 92%,
+      transparent 0,
+      transparent 120px,
+      rgba(14, 165, 233, 0.13) 121px,
+      rgba(14, 165, 233, 0.13) 140px,
+      transparent 141px
+    ),
+
+    radial-gradient(
+      circle at 7% 92%,
+      transparent 0,
+      transparent 145px,
+      rgba(249, 115, 22, 0.09) 146px,
+      rgba(249, 115, 22, 0.09) 160px,
+      transparent 161px
+    ),
+
+    /* WARNA DASAR */
+    linear-gradient(
+      135deg,
+      #eaf6fc 0%,
+      #f4fafd 48%,
+      #e6f4fa 100%
+    ) !important;
+
+  min-height: 100vh;
+}
+
+.login-page .auth-container {
+  width: 100% !important;
+  max-width: 420px !important;
+  margin: 0 auto !important;
+}
+
+.login-page .auth-card {
+  background: #ffffff;
+  border: none;
+  border-top: none;
+  border-radius: 18px;
+  padding: 2.5rem 2.2rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+}
+
+/* Nama perusahaan */
+.login-page .auth-card h1 {
+  text-align: center;
+  color: #111827;
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+}
+
+/* Deskripsi */
+.login-page .subtitle {
+  text-align: center;
+  color: #64748b;
+  font-size: 0.85rem;
+  margin-bottom: 2rem;
+}
+
+/* Label */
+.login-page .form-group label {
+  color: #334155;
+}
+
+/* Input */
+.login-page .form-group input {
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+}
+
+.login-page .form-group input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+}
+
+/* Tombol Masuk */
+.login-page .btn-primary {
+  background: #6366f1;
+  border-radius: 10px;
+  transition: 0.2s ease;
+}
+
+.login-page .btn-primary:hover {
+  background: #4f46e5;
+  transform: translateY(-1px);
+}
+
+/* Akun uji coba */
+.login-page .demo-info {
+  color: #64748b;
+}
+
+.login-page .demo-info code {
+  color: #6366f1;
+  background: #eef2ff;
+}
+
+/* Dekorasi background login */
+body.login-page::before,
+body.login-page::after {
+  content: "";
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body.login-page::before {
+  width: 350px;
+  height: 350px;
+  top: -120px;
+  right: -100px;
+  background: rgba(99, 102, 241, 0.15);
+  filter: blur(5px);
+}
+
+body.login-page::after {
+  width: 300px;
+  height: 300px;
+  bottom: -120px;
+  left: -100px;
+  background: rgba(124, 58, 237, 0.15);
+  filter: blur(5px);
+}
+
+/* Card berada di atas dekorasi */
+.login-page .auth-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* ==========================================
+   CARD LOGIN - MODERN
+   ========================================== */
+
+.login-page .auth-card {
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.35),
+    0 8px 25px rgba(99, 102, 241, 0.08);
+}
+
+/* Judul perusahaan */
+.login-page .auth-card h1 {
+  letter-spacing: 1px;
+  font-size: 1.6rem;
+}
+
+/* Garis kecil di bawah judul */
+.login-page .auth-card h1::after {
+  content: "";
+  display: block;
+  width: 45px;
+  height: 3px;
+  background: #6366f1;
+  border-radius: 10px;
+  margin: 12px auto 0;
+}
+
+/* Input lebih nyaman */
+.login-page .form-group input {
+  transition: 0.2s ease;
+}
+
+.login-page .form-group input:hover {
+  border-color: #a5b4fc;
+}
+
+/* Tombol */
+.login-page .btn-primary {
+  box-shadow: 0 8px 18px rgba(99, 102, 241, 0.25);
+}
+
+/* ==========================================
+   INPUT LOGIN - WARNA
+   ========================================== */
+
+.login-page .form-group input {
+  background: #eef2ff;
+  border: 1.5px solid #c7d2fe;
+  color: #1e1b4b;
+  transition: all 0.2s ease;
+}
+
+.login-page .form-group input::placeholder {
+  color: #818cf8;
+}
+
+.login-page .form-group input:hover {
+  background: #e8edff;
+  border-color: #a5b4fc;
+}
+
+.login-page .form-group input:focus {
+  background: #ffffff;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+}
+
+/* ==========================================
+   INPUT LOGIN - MODERN CORPORATE
+   ========================================== */
+
+.login-page .form-group {
+  position: relative;
+}
+
+.login-page .form-group input {
+  background: linear-gradient(135deg, #f5f7ff, #eef2ff);
+  border: 1px solid #c7d2fe;
+  border-radius: 10px;
+  color: #1e1b4b;
+  padding: 0.8rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.login-page .form-group input::placeholder {
+  color: #7c83a8;
+}
+
+.login-page .form-group input:hover {
+  border-color: #a5b4fc;
+  background: #eef2ff;
+}
+
+.login-page .form-group input:focus {
+  background: #ffffff;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+}
+
+/* ==========================================
+   TOMBOL LOGIN
+   ========================================== */
+
+.login-page .btn-primary {
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  border: none;
+  border-radius: 10px;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.28);
+  transition: all 0.2s ease;
+}
+
+.login-page .btn-primary:hover {
+  background: linear-gradient(135deg, #4f46e5, #6d28d9);
+  box-shadow: 0 10px 24px rgba(99, 102, 241, 0.35);
+  transform: translateY(-2px);
+}
+
+.login-page .btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ==========================================
+   IKON DI DALAM INPUT
+   ========================================== */
+
+.login-page .input-icon {
+  position: relative;
+}
+
+.login-page .input-icon span {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6366f1;
+  font-size: 17px;
+  z-index: 2;
+}
+
+.login-page .input-icon input {
+  padding-left: 42px;
+}
+
+/* ==========================================
+   PASSWORD - IKON ORANG & MATA
+   ========================================== */
+
+.login-page .password-input input {
+  padding-right: 45px;
+}
+
+.login-page .password-input .user-icon {
+  color: #6366f1;
+}
+
+.login-page .toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-page .toggle-password svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: #6366f1;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.login-page .toggle-password:hover svg {
+  stroke: #4f46e5;
+}
+
+/* ==========================================
+   IKON MATA PASSWORD
+   ========================================== */
+
+.login-page .toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-page .toggle-password svg {
+  width: 18px;
+  height: 18px;
+
+  fill: none;
+  stroke: #6366f1;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ==========================================
+   LOGIN ERROR
+   ========================================== */
+
+.login-error {
+  display: none;
+  margin-top: 8px;
+  color: #dc2626;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+/* ==========================================
+   GEOMETRI POJOK LOGIN
+   ========================================== */
+
+body.login-page .geo {
+  position: fixed;
+  width: 300px;
+  height: 230px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Kiri atas */
+body.login-page .geo-top {
+  top: 0;
+  left: 0;
+}
+
+/* Kanan bawah */
+body.login-page .geo-bottom {
+  right: 0;
+  bottom: 0;
+}
+
+
+/* Bentuk geometri */
+body.login-page .shape {
+  position: absolute;
+  display: block;
+}
+
+
+/* Biru tua */
+body.login-page .shape-blue {
+  width: 125px;
+  height: 100px;
+  background: #075985;
+
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    55% 55%,
+    0 100%
+  );
+}
+
+
+/* Orange */
+body.login-page .shape-orange {
+  width: 100px;
+  height: 85px;
+  background: #f97316;
+
+  clip-path: polygon(
+    100% 0,
+    100% 100%,
+    0 45%
+  );
+}
+
+
+/* Biru muda */
+body.login-page .shape-light {
+  width: 135px;
+  height: 100px;
+  background: #38bdf8;
+
+  clip-path: polygon(
+    0 45%,
+    55% 0,
+    100% 55%,
+    45% 100%
+  );
+}
+
+
+/* ==========================================
+   POSISI KIRI ATAS
+   ========================================== */
+
+body.login-page .geo-top .shape-blue {
+  top: 0;
+  left: 0;
+}
+
+body.login-page .geo-top .shape-orange {
+  top: 75px;
+  left: 80px;
+}
+
+body.login-page .geo-top .shape-light {
+  top: 105px;
+  left: 0;
+}
+
+
+/* ==========================================
+   POSISI KANAN BAWAH
+   ========================================== */
+
+body.login-page .geo-bottom .shape-blue {
+  right: 0;
+  bottom: 0;
+  transform: rotate(180deg);
+}
+
+body.login-page .geo-bottom .shape-orange {
+  right: 80px;
+  bottom: 75px;
+  transform: rotate(180deg);
+}
+
+body.login-page .geo-bottom .shape-light {
+  right: 0;
+  bottom: 105px;
+  transform: rotate(180deg);
+}
+
+
+/* Login tetap berada di atas geometri */
+body.login-page .auth-container {
+  position: relative;
+  z-index: 2;
+}
+
+/* ==========================================
+   GEOMETRI CORPORATE - RAPI
+   ========================================== */
+
+body.login-page .geo {
+  width: 360px;
+  height: 300px;
+  position: fixed;
+  overflow: visible;
+  z-index: 0;
+}
+
+
+/* ==========================================
+   GARIS GEOMETRI UTAMA
+   ========================================== */
+
+body.login-page .geo-top::before,
+body.login-page .geo-bottom::before {
+  content: "";
+  position: absolute;
+
+  width: 170px;
+  height: 170px;
+
+  border: 3px solid #0ea5e9;
+  opacity: 0.65;
+
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    100% 25%,
+    25% 100%,
+    0 100%
+  );
+}
+
+
+/* kiri atas */
+body.login-page .geo-top::before {
+  top: 18px;
+  left: 115px;
+}
+
+
+/* kanan bawah */
+body.login-page .geo-bottom::before {
+  right: 115px;
+  bottom: 18px;
+  transform: rotate(180deg);
+}
+
+
+/* ==========================================
+   GARIS ORANGE
+   ========================================== */
+
+body.login-page .geo-top::after,
+body.login-page .geo-bottom::after {
+  content: "";
+  position: absolute;
+
+  width: 170px;
+  height: 6px;
+
+  background: #f97316;
+  border-radius: 3px;
+
+  transform: rotate(-38deg);
+}
+
+
+/* kiri atas */
+body.login-page .geo-top::after {
+  top: 132px;
+  left: 20px;
+}
+
+
+/* kanan bawah */
+body.login-page .geo-bottom::after {
+  right: 20px;
+  bottom: 132px;
+  transform: rotate(-38deg);
+}
+
+
+/* ==========================================
+   BENTUK KECIL
+   ========================================== */
+
+body.login-page .shape-small-blue {
+  position: absolute;
+
+  width: 42px;
+  height: 42px;
+
+  border: 2px solid #38bdf8;
+
+  transform: rotate(45deg);
+}
+
+
+/* kiri atas */
+body.login-page .geo-top .shape-small-blue {
+  top: 42px;
+  left: 245px;
+}
+
+
+/* kanan bawah */
+body.login-page .geo-bottom .shape-small-blue {
+  right: 245px;
+  bottom: 42px;
+  transform: rotate(45deg);
+}
+
+
+/* ==========================================
+   SEGITIGA ORANGE
+   ========================================== */
+
+body.login-page .shape-small-orange {
+  position: absolute;
+
+  width: 0;
+  height: 0;
+
+  border-left: 17px solid transparent;
+  border-right: 17px solid transparent;
+  border-bottom: 30px solid #f97316;
+}
+
+
+/* kiri atas */
+body.login-page .geo-top .shape-small-orange {
+  top: 110px;
+  left: 245px;
+}
+
+
+/* kanan bawah */
+body.login-page .geo-bottom .shape-small-orange {
+  right: 245px;
+  bottom: 110px;
+  transform: rotate(180deg);
+}
+
+
+/* ==========================================
+   GARIS BIRU TIPIS
+   ========================================== */
+
+body.login-page .shape-small-light {
+  position: absolute;
+
+  width: 90px;
+  height: 3px;
+
+  background: #0284c7;
+
+  transform: rotate(-38deg);
+}
+
+
+/* kiri atas */
+body.login-page .geo-top .shape-small-light {
+  top: 175px;
+  left: 35px;
+}
+
+
+/* kanan bawah */
+body.login-page .geo-bottom .shape-small-light {
+  right: 35px;
+  bottom: 175px;
+  transform: rotate(-38deg);
+}
+
+
+/* ==========================================
+   KOTAK DIAGONAL
+   ========================================== */
+
+body.login-page .geo-top .shape-light::after,
+body.login-page .geo-bottom .shape-light::after {
+  content: "";
+
+  position: absolute;
+
+  width: 48px;
+  height: 48px;
+
+  border: 2px solid #075985;
+
+  transform: rotate(45deg);
+}
+
+
+/* kiri atas */
+body.login-page .geo-top .shape-light::after {
+  top: 40px;
+  left: 185px;
+}
+
+
+/* kanan bawah */
+body.login-page .geo-bottom .shape-light::after {
+  right: 185px;
+  bottom: 40px;
+  transform: rotate(45deg);
+}
+
+
+/* ==========================================
+   TITIK ORANGE
+   ========================================== */
+
+body.login-page .geo-top .shape-blue::after,
+body.login-page .geo-bottom .shape-blue::after {
+  content: "";
+
+  position: absolute;
+
+  width: 9px;
+  height: 9px;
+
+  background: #f97316;
+  border-radius: 50%;
+}
+
+
+/* kiri atas */
+body.login-page .geo-top .shape-blue::after {
+  top: 105px;
+  left: 220px;
+}
+
+
+/* kanan bawah */
+body.login-page .geo-bottom .shape-blue::after {
+  right: 220px;
+  bottom: 105px;
+}
+
+/* ==========================================
+   LOGIN CARD - INSABA CORPORATE
+   ========================================== */
+
+body.login-page .auth-card {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(7, 89, 133, 0.12);
+  border-radius: 18px;
+
+  box-shadow:
+    0 20px 45px rgba(7, 89, 133, 0.14),
+    0 4px 12px rgba(7, 89, 133, 0.08);
+
+  padding: 38px 40px;
+}
+
+
+/* ==========================================
+   JUDUL
+   ========================================== */
+
+body.login-page .auth-card h1 {
+  color: #075985;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+body.login-page .auth-card .subtitle {
+  color: #64748b;
+}
+
+
+/* ==========================================
+   LABEL EMAIL & PASSWORD
+   ========================================== */
+
+body.login-page .form-group label {
+  color: #334155;
+  font-weight: 600;
+}
+
+
+/* ==========================================
+   INPUT
+   ========================================== */
+
+body.login-page .input-icon {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  border-radius: 10px;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* Icon kiri */
+body.login-page .input-icon > span {
+  color: #0284c7;
+}
+
+
+/* Saat input diklik */
+body.login-page .input-icon:focus-within {
+  border-color: #0284c7;
+
+  box-shadow:
+    0 0 0 3px rgba(14, 165, 233, 0.12);
+}
+
+
+/* Input text */
+body.login-page .input-icon input {
+  color: #1e293b;
+  background: transparent;
+}
+
+
+/* Placeholder */
+body.login-page .input-icon input::placeholder {
+  color: #94a3b8;
+}
+
+
+/* ==========================================
+   ICON PASSWORD
+   ========================================== */
+
+body.login-page .user-icon {
+  color: #0284c7 !important;
+}
+
+
+/* Tombol mata */
+body.login-page .toggle-password {
+  color: #64748b;
+}
+
+body.login-page .toggle-password:hover {
+  color: #0284c7;
+}
+
+
+/* SVG mata */
+body.login-page .toggle-password svg {
+  stroke: currentColor;
+}
+
+
+/* ==========================================
+   TOMBOL MASUK
+   ========================================== */
+
+body.login-page .btn-primary {
+  background: linear-gradient(
+    135deg,
+    #075985,
+    #0284c7
+  );
+
+  border: none;
+  border-radius: 10px;
+
+  color: white;
+  font-weight: 600;
+
+  box-shadow:
+    0 6px 15px rgba(2, 132, 199, 0.22);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+body.login-page .btn-primary:hover {
+  background: linear-gradient(
+    135deg,
+    #064e75,
+    #0369a1
+  );
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 8px 18px rgba(2, 132, 199, 0.28);
+}
+
+
+/* ==========================================
+   AKUN UJI COBA
+   ========================================== */
+
+body.login-page .demo-info {
+  color: #64748b;
+}
+
+body.login-page .demo-info strong {
+  color: #075985;
+}
+
+body.login-page .demo-info code {
+  color: #0284c7;
+  background: #f0f9ff;
+  border-radius: 4px;
+  padding: 2px 5px;
+}
+
+
+/* ==========================================
+   ERROR LOGIN
+   ========================================== */
+
+body.login-page .login-error {
+  color: #dc2626;
+}
+
+/* ==========================================
+   KARTU LOGIN - INSABA
+   BIRU KIRI ATAS + ORANGE KANAN BAWAH
+   ========================================== */
+
+body.login-page .auth-card {
+  position: relative;
+  overflow: hidden;
+
+  background: linear-gradient(
+    135deg,
+    #f8fdff 0%,
+    #eef8fc 100%
+  );
+
+  border: 1px solid rgba(7, 89, 133, 0.18);
+  border-radius: 20px;
+
+  box-shadow:
+    0 20px 45px rgba(7, 89, 133, 0.18),
+    0 6px 16px rgba(7, 89, 133, 0.08);
+}
+
+
+/* ==========================================
+   BIRU - POJOK KIRI ATAS
+   ========================================== */
+
+body.login-page .auth-card::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 85px;
+  height: 80px;
+
+  background: #075985;
+
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    68% 35%,
+    38% 68%,
+    0 100%
+  );
+
+  z-index: 1;
+}
+
+
+/* ==========================================
+   ORANGE - POJOK KANAN BAWAH
+   ========================================== */
+
+body.login-page .auth-card::after {
+  content: "";
+
+  position: absolute;
+  right: 0;
+  bottom: 0;
+
+  width: 85px;
+  height: 80px;
+
+  background: #f97316;
+
+  clip-path: polygon(
+    100% 0,
+    100% 100%,
+    0 100%,
+    32% 65%,
+    62% 32%
+  );
+
+  z-index: 1;
+}
+
+
+/* ==========================================
+   ISI KARTU DI ATAS GEOMETRI
+   ========================================== */
+
+body.login-page .auth-card h1,
+body.login-page .auth-card .subtitle,
+body.login-page .auth-card form,
+body.login-page .auth-card .demo-info {
+  position: relative;
+  z-index: 3;
+}
+
+
+/* ==========================================
+   JUDUL
+   ========================================== */
+
+body.login-page .auth-card h1 {
+  white-space: nowrap;
+  text-align: center;
+
+  color: #075985;
+  font-size: 1.45rem;
+  font-weight: 800;
+
+  letter-spacing: 0.5px;
+
+  margin-top: 28px;
+  margin-bottom: 8px;
+}
+
+
+/* ==========================================
+   INPUT
+   ========================================== */
+
+body.login-page .input-icon {
+  background: #ffffff;
+  border: 1px solid #bae6fd;
+}
+
+body.login-page .input-icon:focus-within {
+  border-color: #0284c7;
+
+  box-shadow:
+    0 0 0 3px rgba(14, 165, 233, 0.12);
+}
+
+
+/* ICON */
+
+body.login-page .input-icon > span,
+body.login-page .user-icon {
+  color: #0284c7 !important;
+}
+
+
+/* ==========================================
+   TOMBOL
+   ========================================== */
+
+body.login-page .btn-primary {
+  background: linear-gradient(
+    135deg,
+    #075985 0%,
+    #0284c7 100%
+  );
+
+  border: none;
+  border-radius: 10px;
+
+  color: #ffffff;
+  font-weight: 600;
+
+  box-shadow:
+    0 7px 18px rgba(2, 132, 199, 0.25);
+}
+
+
+/* ==========================================
+   DEMO INFO
+   ========================================== */
+
+body.login-page .demo-info {
+  color: #64748b;
+}
+
+body.login-page .demo-info strong {
+  color: #075985;
+}
+
+body.login-page .demo-info code {
+  color: #075985;
+  background: #e0f2fe;
+
+  border-radius: 4px;
+  padding: 2px 5px;
+}
+
+.periode-info {
+  display: flex;
+  gap: 2rem;
+}
+
+.periode-date-card {
+  width: 260px;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1rem;
+  border-radius: 10px;
+}
+
+/* Tanggal Mulai - Hijau */
+.periode-date-card:first-child {
+  background: #e8f5e9;
+}
+
+.periode-date-card:first-child .periode-icon {
+  color: #34a853;
+}
+
+.periode-date-card:first-child strong {
+  color: #137333;
+}
+
+/* Tanggal Selesai - Oranye */
+.periode-date-card:last-child {
+  background: #fff3e0;
+}
+
+.periode-date-card:last-child .periode-icon {
+  color: #f29900;
+}
+
+.periode-date-card:last-child strong {
+  color: #b06000;
+}
+
+.periode-icon {
+  font-size: 1.7rem;
+}
+
+.periode-date-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.periode-date-content span {
+  font-size: 0.9rem;
+  color: #334155;
+}
+
+.periode-date-content strong {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.periode-status.berjalan {
+  background: #e8f5e9;
+  color: #137333;
+}
+
+.periode-status.belum-mulai {
+  background: #eaf4ff;
+  color: #075985;
+}
+
+.periode-status.selesai {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.periode-header {
+  position: relative;
+}
+
+.periode-status {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.periode-warning {
+  margin-top: 1.5rem;
+  padding: 1rem 1.2rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-left: 4px solid #f97316;
+  border-radius: 10px;
+}
+
+.warning-icon {
+  font-size: 1.2rem;
+}
+
+.periode-warning strong {
+  color: #c2410c;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.periode-warning p {
+  margin: 0;
+  color: #7c2d12;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* ===== POP UP ABSENSI ===== */
+.absen-popup {
+  position: fixed;
+  top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 320px;
+  max-width: 420px;
+  padding: 1rem 1.2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  border-left: 5px solid #0284c7;
+  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.18);
+  z-index: 9999;
+}
+.absen-popup-content {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.absen-popup-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #e0f2fe;
+  color: #0284c7;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.absen-popup-text strong {
+  display: block;
+  color: #0f172a;
+  font-size: 0.95rem;
+  margin-bottom: 0.2rem;
+}
+
+.absen-popup-text span {
+  display: block;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+/* Berhasil */
+.absen-popup.success {
+  border-left-color: #16a34a;
+}
+
+.absen-popup.success .absen-popup-icon {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+/* Sudah absen */
+.absen-popup.warning {
+  border-left-color: #f59e0b;
+}
+
+.absen-popup.warning .absen-popup-icon {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+/* Gagal */
+.absen-popup.error {
+  border-left-color: #dc2626;
+}
+
+.absen-popup.error .absen-popup-icon {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.absen-popup {
+  animation: popupMasuk 0.3s ease-out;
+}
+
+@keyframes popupMasuk {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.absen-popup {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.absen-popup::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 100%;
+  background: currentColor;
+  border-radius: 0 0 12px 12px;
+  animation: popupProgress 4s linear forwards;
+}
+
+@keyframes popupProgress {
+  from {
+    width: 100%;
+  }
+
+  to {
+    width: 0%;
+  }
+}
+
+.absen-popup {
+  position: fixed;
+  top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 320px;
+  max-width: 420px;
+  padding: 1rem 1.2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  border-left: 5px solid #0284c7;
+  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.18);
+  z-index: 9999;
+  overflow: hidden;
+}
+
+/* ==========================================
+   BACKGROUND DASHBOARD PEMBIMBING
+   POLA GEOMETRIS RAMAI
+   ORANGE + BIRU
+   ========================================== */
+
+body.pembimbing-page {
+  min-height: 100vh;
+  color: #334155;
+  display: block;
+
+  background:
+
+    /* =====================================
+       DIAGONAL ORANGE
+       ===================================== */
+    repeating-linear-gradient(
+      135deg,
+      transparent 0,
+      transparent 70px,
+      rgba(249, 115, 22, 0.14) 71px,
+      rgba(249, 115, 22, 0.14) 75px,
+      transparent 76px,
+      transparent 145px
+    ),
+
+    /* =====================================
+       DIAGONAL BIRU
+       ===================================== */
+    repeating-linear-gradient(
+      45deg,
+      transparent 0,
+      transparent 90px,
+      rgba(14, 165, 233, 0.13) 91px,
+      rgba(14, 165, 233, 0.13) 95px,
+      transparent 96px,
+      transparent 180px
+    ),
+
+    /* =====================================
+       GRID ORANGE HORIZONTAL
+       ===================================== */
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 120px,
+      rgba(249, 115, 22, 0.07) 121px,
+      rgba(249, 115, 22, 0.07) 124px,
+      transparent 125px
+    ),
+
+    /* =====================================
+       GRID BIRU VERTIKAL
+       ===================================== */
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 120px,
+      rgba(14, 165, 233, 0.07) 121px,
+      rgba(14, 165, 233, 0.07) 124px,
+      transparent 125px
+    ),
+
+    /* =====================================
+       LINGKARAN ORANGE KIRI ATAS
+       ===================================== */
+    radial-gradient(
+      circle at 8% 12%,
+      transparent 0,
+      transparent 45px,
+      rgba(249, 115, 22, 0.20) 46px,
+      rgba(249, 115, 22, 0.20) 51px,
+      transparent 52px,
+      transparent 75px,
+      rgba(249, 115, 22, 0.14) 76px,
+      rgba(249, 115, 22, 0.14) 81px,
+      transparent 82px,
+      transparent 105px,
+      rgba(249, 115, 22, 0.09) 106px,
+      rgba(249, 115, 22, 0.09) 110px,
+      transparent 111px
+    ),
+
+    /* =====================================
+       LINGKARAN BIRU KANAN ATAS
+       ===================================== */
+    radial-gradient(
+      circle at 92% 18%,
+      transparent 0,
+      transparent 50px,
+      rgba(14, 165, 233, 0.20) 51px,
+      rgba(14, 165, 233, 0.20) 56px,
+      transparent 57px,
+      transparent 82px,
+      rgba(14, 165, 233, 0.14) 83px,
+      rgba(14, 165, 233, 0.14) 88px,
+      transparent 89px,
+      transparent 115px,
+      rgba(14, 165, 233, 0.09) 116px,
+      rgba(14, 165, 233, 0.09) 120px,
+      transparent 121px
+    ),
+
+    /* =====================================
+       LINGKARAN ORANGE KIRI BAWAH
+       ===================================== */
+    radial-gradient(
+      circle at 10% 88%,
+      transparent 0,
+      transparent 40px,
+      rgba(249, 115, 22, 0.18) 41px,
+      rgba(249, 115, 22, 0.18) 46px,
+      transparent 47px,
+      transparent 70px,
+      rgba(249, 115, 22, 0.13) 71px,
+      rgba(249, 115, 22, 0.13) 76px,
+      transparent 77px,
+      transparent 100px,
+      rgba(249, 115, 22, 0.08) 101px,
+      rgba(249, 115, 22, 0.08) 105px,
+      transparent 106px
+    ),
+
+    /* =====================================
+       LINGKARAN BIRU KANAN BAWAH
+       ===================================== */
+    radial-gradient(
+      circle at 90% 88%,
+      transparent 0,
+      transparent 45px,
+      rgba(14, 165, 233, 0.18) 46px,
+      rgba(14, 165, 233, 0.18) 51px,
+      transparent 52px,
+      transparent 75px,
+      rgba(14, 165, 233, 0.13) 76px,
+      rgba(14, 165, 233, 0.13) 81px,
+      transparent 82px,
+      transparent 105px,
+      rgba(14, 165, 233, 0.08) 106px,
+      rgba(14, 165, 233, 0.08) 110px,
+      transparent 111px
+    ),
+
+    /* =====================================
+       TITIK ORANGE
+       ===================================== */
+    radial-gradient(
+      circle,
+      rgba(249, 115, 22, 0.18) 2px,
+      transparent 3px
+    ),
+
+    /* =====================================
+       TITIK BIRU
+       ===================================== */
+    radial-gradient(
+      circle,
+      rgba(14, 165, 233, 0.16) 2px,
+      transparent 3px
+    ),
+
+    /* =====================================
+       WARNA DASAR
+       ===================================== */
+    linear-gradient(
+      135deg,
+      #fff7ed 0%,
+      #ffffff 45%,
+      #f0f9ff 100%
+    );
+
+  background-size:
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    auto,
+    35px 35px,
+    45px 45px,
+    auto;
+
+  background-attachment: fixed;
+}
+
+body.pembimbing-page .navbar {
+  background: linear-gradient(
+    135deg,
+    #000000 0%,
+    #6471e6 45%,
+    #ff6b00 100%
+  );
+
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.25);
+}
+.login-logos {
+  position: fixed !important;
+  top: 15px !important;
+  right: 15px !important;
+  left: auto !important;
+  bottom: auto !important;
+
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+
+  gap: 8px !important;
+
+  z-index: 9999 !important;
+}
+
+.login-corner-logo {
+  position: static !important;
+  width: 60px !important;
+  height: 60px !important;
+  object-fit: contain;
+}
+
+.logo-collab {
+  font-size: 28px;
+  font-weight: 600;
+  color: #334155;
+  line-height: 1;
+  margin: 0 2px;
+}
+
+
+/* ===== PERIODE PKL - DASHBOARD SISWA ===== */
+
+body.siswa-page .periode-card {
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #dbe5ef;
+  border-top: none;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(15, 39, 71, 0.08);
+}
+
+/* Header biru navy */
+body.siswa-page .periode-card .periode-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 24px;
+  background: linear-gradient(120deg, #123456, #075985);
+}
+
+body.siswa-page .periode-card .periode-header h2 {
+  margin: 0;
+  color: #ffffff;
+}
+
+body.siswa-page .periode-card .periode-header h2::before {
+  display: none;
+}
+
+/* Status periode */
+body.siswa-page .periode-card .periode-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  border-radius: 20px;
+  background: #d1fae5;
+  color: #065f46;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Area tanggal */
+body.siswa-page .periode-card .periode-info {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  padding: 24px 24px 12px;
+}
+
+/* Kartu tanggal */
+body.siswa-page .periode-card .periode-date-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  background: #eff6ff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.siswa-page .periode-card .periode-date-card:nth-child(2) {
+  border-color: #99f6e4;
+  background: #f0fdfa;
+}
+
+body.siswa-page .periode-card .periode-date-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(15, 39, 71, 0.08);
+}
+
+/* Ikon tanggal */
+body.siswa-page .periode-card .periode-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: #dbeafe;
+  font-size: 23px;
+}
+
+body.siswa-page .periode-card .periode-date-card:nth-child(2) .periode-icon {
+  background: #ccfbf1;
+}
+
+/* Teks tanggal */
+body.siswa-page .periode-card .periode-date-content {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+body.siswa-page .periode-card .periode-date-content span {
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+body.siswa-page .periode-card .periode-date-content strong {
+  color: #1e3a8a;
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
+body.siswa-page .periode-card .periode-date-card:nth-child(2)
+.periode-date-content strong {
+  color: #115e59;
+}
+
+/* Pengingat oranye */
+body.siswa-page .periode-card .periode-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 12px 24px 24px;
+  padding: 18px;
+  border: 1px solid #fed7aa;
+  border-left: 5px solid #f97316;
+  border-radius: 10px;
+  background: #fff7ed;
+}
+
+body.siswa-page .periode-card .warning-icon {
+  font-size: 22px;
+}
+
+body.siswa-page .periode-card .periode-warning strong {
+  color: #9a3412;
+}
+
+body.siswa-page .periode-card .periode-warning p {
+  margin: 6px 0 0;
+  color: #7c4528;
+  line-height: 1.7;
+}
+
+/* Tampilan HP */
+@media (max-width: 600px) {
+  body.siswa-page .periode-card .periode-header {
+    padding: 20px;
+  }
+
+  body.siswa-page .periode-card .periode-info {
+    grid-template-columns: 1fr;
+    padding: 18px 16px 8px;
+  }
+
+  body.siswa-page .periode-card .periode-date-card {
+    padding: 16px;
+  }
+
+  body.siswa-page .periode-card .periode-warning {
+    margin: 12px 16px 18px;
+  }
+}
+
+/* ===== PERIODE PKL: LAYOUT RAPI ===== */
+
+body.siswa-page .periode-card {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+/* Header dan status */
+body.siswa-page .periode-card .periode-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 22px 28px;
+  background: linear-gradient(120deg, #123456, #075985);
+}
+
+body.siswa-page .periode-card .periode-header h2 {
+  margin: 0;
+  color: #ffffff;
+}
+
+body.siswa-page .periode-card .periode-header h2::before {
+  display: none;
+}
+
+body.siswa-page .periode-card .periode-status {
+  position: static;
+  flex-shrink: 0;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 20px;
+  background: #d1fae5;
+  color: #065f46;
+  white-space: nowrap;
+}
+
+/* Area tanggal: tidak melebar berlebihan */
+body.siswa-page .periode-card .periode-info {
+  display: flex;
+  justify-content: flex-start;
+  align-items: stretch;
+  gap: 20px;
+  padding: 24px 28px 12px;
+}
+
+body.siswa-page .periode-card .periode-date-card {
+  box-sizing: border-box;
+  flex: 0 1 380px;
+  width: 380px;
+  min-width: 0;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 12px;
+}
+
+body.siswa-page .periode-card .periode-date-card:nth-child(1) {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+}
+
+body.siswa-page .periode-card .periode-date-card:nth-child(2) {
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+}
+
+body.siswa-page .periode-card .periode-icon {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: #dbeafe;
+}
+
+body.siswa-page .periode-card .periode-date-card:nth-child(2)
+.periode-icon {
+  background: #ccfbf1;
+}
+
+body.siswa-page .periode-card .periode-date-content {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+}
+
+body.siswa-page .periode-card .periode-date-content span {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #475569;
+  font-weight: 600;
+}
+
+body.siswa-page .periode-card .periode-date-content strong {
+  font-size: 17px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  color: #1e40af;
+}
+
+body.siswa-page .periode-card .periode-date-card:nth-child(2)
+.periode-date-content strong {
+  color: #115e59;
+}
+
+/* Pengingat: tidak terlalu melebar */
+body.siswa-page .periode-card .periode-warning {
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin: 12px 28px 24px;
+  padding: 18px 20px;
+  border: 1px solid #fed7aa;
+  border-left: 5px solid #f97316;
+  border-radius: 10px;
+  background: #fff7ed;
+}
+
+body.siswa-page .periode-card .warning-icon {
+  flex-shrink: 0;
+  font-size: 22px;
+}
+
+body.siswa-page .periode-card .periode-warning strong {
+  color: #9a3412;
+}
+
+body.siswa-page .periode-card .periode-warning p {
+  margin: 6px 0 0;
+  color: #7c4528;
+  line-height: 1.7;
+}
+
+/* Tampilan laptop kecil dan HP */
+@media (max-width: 700px) {
+  body.siswa-page .periode-card .periode-header {
+    flex-wrap: wrap;
+    padding: 20px;
+    gap: 12px;
+  }
+
+  body.siswa-page .periode-card .periode-info {
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px 16px 10px;
+  }
+
+  body.siswa-page .periode-card .periode-date-card {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+
+  body.siswa-page .periode-card .periode-warning {
+    margin: 12px 16px 18px;
+  }
+}
+
+/* ===== HEADER MENU ABSENSI - SAMA DENGAN PERIODE PKL ===== */
+body.siswa-page .container > section.card:nth-of-type(2) > h2 {
+  background: linear-gradient(120deg, #123456 0%, #075985 100%);
+  color: #ffffff;
+  padding: 22px 28px;
+  margin: -2.2rem -2.2rem 30px;
+  border-radius: 11px 11px 0 0;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.4;
+  border: none;
+  box-shadow: none;
+}
+
+/* Hilangkan garis dekoratif pada judul */
+body.siswa-page .container > section.card:nth-of-type(2) > h2::before {
+  display: none;
+  content: none;
+}
+
+/* Hilangkan garis biru di atas kartu Menu Absensi */
+body.siswa-page .container > section.card:nth-of-type(2) {
+  border-top: none;
+}
+
+@media (max-width: 600px) {
+  body.siswa-page .container > section.card:nth-of-type(2) > h2 {
+    margin: -1.5rem -1.5rem 24px;
+    padding: 18px;
+    font-size: 20px;
+  }
+}
+
+/* ===== MEMPERINDAH ISI MENU ABSENSI ===== */
+
+/* Area tombol */
+body.siswa-page #formAbsensi {
+  background: #f4f9fd;
+  border: 1px solid #d8eaf5;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 22px;
+}
+
+/* Jarak area tombol dari form */
+body.siswa-page .absen-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+/* Label form */
+body.siswa-page #formAbsensi label {
+  color: #164e72;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* Input dan pilihan status */
+body.siswa-page #formAbsensi input,
+body.siswa-page #formAbsensi select {
+  border: 1px solid #cbdfea;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px 14px;
+  color: #183b53;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Efek saat input dipilih */
+body.siswa-page #formAbsensi input:focus,
+body.siswa-page #formAbsensi select:focus {
+  outline: none;
+  border-color: #0284c7;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+}
+
+/* Judul riwayat absensi */
+body.siswa-page .container > section.card:nth-of-type(2) h3 {
+  color: #164e72;
+  border-left: 4px solid #38bdf8;
+  padding-left: 12px;
+  margin-top: 28px;
+  margin-bottom: 16px;
+}
+
+/* Tabel riwayat */
+body.siswa-page #tabelAbsensiSiswa {
+  background: #ffffff;
+}
+
+body.siswa-page #tabelAbsensiSiswa tr {
+  transition: background-color 0.2s;
+}
+
+body.siswa-page #tabelAbsensiSiswa tr:hover {
+  background: #f0f9ff;
+}
+
+/* ===== HEADER MENU TUGAS & LAPORAN HARIAN ===== */
+
+body.siswa-page .container > section.card:has(#formLaporan) {
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #bae6fd;
+  border-top: none;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+/* Header biru gradasi */
+body.siswa-page .container > section.card:has(#formLaporan) > h2 {
+  margin: 0;
+  padding: 32px 36px;
+  background: linear-gradient(115deg, #153957 0%, #075985 55%, #0284c7 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 0;
+}
+
+/* Hilangkan aksen vertikal judul lama */
+body.siswa-page .container > section.card:has(#formLaporan) > h2::before {
+  display: none;
+}
+
+/* Isi kartu tetap putih dengan jarak rapi */
+body.siswa-page .container > section.card:has(#formLaporan) > form,
+body.siswa-page .container > section.card:has(#formLaporan) > h3,
+body.siswa-page .container > section.card:has(#formLaporan) > .table-responsive {
+  margin-left: 36px;
+  margin-right: 36px;
+}
+
+body.siswa-page .container > section.card:has(#formLaporan) > form {
+  margin-top: 28px;
+}
+
+body.siswa-page .container > section.card:has(#formLaporan) > .table-responsive {
+  margin-bottom: 30px;
+}
+
+@media (max-width: 600px) {
+  body.siswa-page .container > section.card:has(#formLaporan) > h2 {
+    padding: 24px 20px;
+  }
+
+  body.siswa-page .container > section.card:has(#formLaporan) > form,
+  body.siswa-page .container > section.card:has(#formLaporan) > h3,
+  body.siswa-page .container > section.card:has(#formLaporan) > .table-responsive {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+}
+
+/* ===== HEADER TUGAS DARI PEMBIMBING ===== */
+
+body.siswa-page .container > section.card:has(#tabelTugasSiswa) {
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #bae6fd;
+  border-top: none;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+/* Header biru gradasi */
+body.siswa-page .container > section.card:has(#tabelTugasSiswa) > h2 {
+  margin: 0;
+  padding: 32px 36px;
+  background: linear-gradient(
+    115deg,
+    #153957 0%,
+    #075985 55%,
+    #0284c7 100%
+  );
+  color: #ffffff;
+  border: none;
+  border-radius: 0;
+}
+
+/* Hilangkan garis biru vertikal di judul */
+body.siswa-page .container > section.card:has(#tabelTugasSiswa) > h2::before {
+  display: none;
+}
+
+/* Beri jarak pada tabel */
+body.siswa-page .container > section.card:has(#tabelTugasSiswa) > .table-responsive {
+  margin: 28px 36px 30px;
+}
+
+/* Tampilan layar kecil */
+@media (max-width: 600px) {
+  body.siswa-page .container > section.card:has(#tabelTugasSiswa) > h2 {
+    padding: 24px 20px;
+  }
+
+  body.siswa-page .container > section.card:has(#tabelTugasSiswa) > .table-responsive {
+    margin: 20px 16px 24px;
+  }
+}
+
+body.siswa-page #formLaporan button[type="submit"] {
+  background: #0891A2 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #0891A2 !important;
+}
+
+body.siswa-page #formLaporan button[type="submit"]:hover {
+  background: #0E7490 !important;
+  border-color: #0E7490 !important;
+}
+
+/* Deadline tugas - gaya minimalis */
+.deadline-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+    min-width: 155px;
+}
+
+.deadline-tanggal {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.deadline-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.deadline-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    border: 1px solid transparent;
+}
+
+.deadline-aman {
+    color: #166534;
+    background: #f0fdf4;
+    border-color: #dcfce7;
+}
+
+.deadline-dekat {
+    color: #92400e;
+    background: #fffbeb;
+    border-color: #fef3c7;
+}
+
+.deadline-lewat {
+    color: #991b1b;
+    background: #fef2f2;
+    border-color: #fee2e2;
+}
+
+/* Notifikasi progress tugas */
+.toast-notifikasi {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 99999;
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    width: max-content;
+    max-width: calc(100% - 48px);
+    padding: 18px 22px;
+
+    background: #ffffff;
+    color: #172033;
+    border-left: 5px solid #10b981;
+    border-radius: 16px;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+
+    animation: toastMasuk 0.3s ease;
+}
+
+.toast-notifikasi .toast-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+
+    border-radius: 50%;
+    background: #d1fae5;
+    color: #059669;
+
+    font-size: 23px;
+    font-weight: bold;
+}
+
+.toast-notifikasi .toast-teks {
+    font-weight: 600;
+}
+
+@keyframes toastMasuk {
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Dropdown status progress tugas */
+.status-progress {
+    min-width: 175px;
+    padding: 10px 34px 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background-color: #ffffff;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.status-progress:hover {
+    border-color: #9ca3af;
+}
+
+.status-progress:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+/* Belum mulai */
+.status-progress.status-pending {
+    background-color: #f3f4f6;
+    border-color: #d1d5db;
+    color: #4b5563;
+}
+
+/* Sedang dikerjakan */
+.status-progress.status-proses {
+    background-color: #fff7ed;
+    border-color: #fed7aa;
+    color: #c2410c;
+}
+
+/* Selesai */
+.status-progress.status-selesai {
+    background-color: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #047857;
+}
+
+/* Status selesai tetap terkunci */
+.status-progress:disabled {
+    cursor: not-allowed;
+    opacity: 0.9;
+}
+
+/* Tombol Setujui pada tabel review laporan */
+.btn-success {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(22, 163, 74, 0.18);
+  transition: all 0.2s ease;
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #15803d, #166534);
+  box-shadow: 0 5px 10px rgba(22, 163, 74, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-success:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Modal komentar biru modern */
+.komentar-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(35, 55, 85, 0.38);
+  backdrop-filter: blur(5px);
+}
+
+.komentar-modal {
+  width: 100%;
+  max-width: 440px;
+  box-sizing: border-box;
+  padding: 26px;
+  border: 1px solid #dbeafe;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 20px 55px rgba(59, 130, 246, 0.18);
+  animation: komentarMasuk 0.2s ease-out;
+}
+
+.komentar-modal-heading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.komentar-modal-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #2563eb;
+  font-size: 24px;
+}
+
+.komentar-modal-heading h3 {
+  margin: 0 0 6px;
+  color: #263b59;
+  font-size: 19px;
+}
+
+.komentar-modal-heading p {
+  margin: 0;
+  color: #718096;
+  font-size: 13px;
+}
+
+.komentar-modal label {
+  display: block;
+  margin-bottom: 9px;
+  color: #334b6b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.komentar-modal textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  border: 1px solid #d5dfed;
+  border-radius: 11px;
+  background: #f8faff;
+  color: #263b59;
+  font: inherit;
+  font-size: 14px;
+  resize: vertical;
+  outline: none;
+  transition: 0.2s;
+}
+
+.komentar-modal textarea:focus {
+  border-color: #7ba7ef;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.16);
+}
+
+.komentar-modal textarea::placeholder {
+  color: #9aa9bd;
+}
+
+.komentar-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.komentar-modal-actions button {
+  padding: 11px 16px;
+  border: none;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.komentar-cancel {
+  background: #edf2f8;
+  color: #53657d;
+}
+
+.komentar-cancel:hover {
+  background: #e0e8f3;
+}
+
+.komentar-submit {
+  background: linear-gradient(135deg, #6da2f5, #4382e8);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(67, 130, 232, 0.2);
+}
+
+.komentar-submit:hover {
+  background: linear-gradient(135deg, #568fe9, #3472d4);
+  transform: translateY(-1px);
+}
+
+@keyframes komentarMasuk {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .komentar-modal {
+    padding: 20px;
+  }
+
+  .komentar-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .komentar-modal-actions button {
+    width: 100%;
+  }
+}
+
+/* Notifikasi review laporan */
+.absen-popup.success {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 100000;
+  width: min(380px, calc(100vw - 48px));
+  box-sizing: border-box;
+  padding: 17px 20px;
+  border: 1px solid #dbeafe;
+  border-left: 5px solid #6099ed;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ffffff, #eff6ff);
+  color: #29466d;
+  box-shadow: 0 12px 35px rgba(59, 130, 246, 0.16);
+  animation: reviewPopupMasuk 0.35s ease-out;
+}
+
+.absen-popup.success .absen-popup-content {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.absen-popup.success .absen-popup-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #dbeafe;
+  color: #3478d4;
+  font-size: 23px;
+  font-weight: 700;
+}
+
+.absen-popup.success .absen-popup-text {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.absen-popup.success .absen-popup-text strong {
+  color: #28558f;
+  font-size: 15px;
+}
+
+.absen-popup.success .absen-popup-text span {
+  color: #647b98;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+@keyframes reviewPopupMasuk {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .absen-popup.success {
+    top: 14px;
+    right: 12px;
+    width: calc(100vw - 24px);
+  }
+}
+/* Pilihan siswa yang kecil dan elegan */
+#siswaPkl,
+#siswaTugas {
+  width: auto;
+  max-width: 100%;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid #dbe3ef;
+  border-radius: 7px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#siswaPkl:hover,
+#siswaTugas:hover {
+  border-color: #93b4f5;
+  background: #ffffff;
+}
+
+#siswaPkl:focus,
+#siswaTugas:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12);
+}
+
+/* Deadline - jelas dan tetap ringkas */
+#deadlineTugas {
+  width: auto;
+  max-width: 100%;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid #93b4f5;
+  border-radius: 8px;
+  background-color: #eef4ff;
+  color: #1e3a8a;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#deadlineTugas:hover {
+  border-color: #3b82f6;
+  background-color: #e0ebff;
+}
+
+#deadlineTugas:focus {
+  outline: none;
+  border-color: #2563eb;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+
+/* FIX: Header Periode PKL memenuhi lebar card */
+body.pembimbing-page section.card.periode-pkl-pembimbing {
+  padding-top: 0 !important;
+  overflow: hidden !important;
+}
+
+body.pembimbing-page section.card.periode-pkl-pembimbing > .periode-header {
+  display: block !important;
+  width: calc(100% + 70px) !important;
+  box-sizing: border-box !important;
+  margin: 0 0 20px -35px !important;
+  padding: 18px 24px !important;
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%) !important;
+  border-radius: 12px 12px 0 0 !important;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2) !important;
+}
+
+body.pembimbing-page section.card.periode-pkl-pembimbing > .periode-header h2 {
+  color: #ffffff !important;
+  margin: 0 !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+}
+
+/* HEADER GRADASI BIRU-UNGU UNTUK SEMUA CARD PEMBIMBING */
+
+/* Potong gradasi tepat pada batas card */
+body.pembimbing-page main.container > section.card {
+  overflow: hidden;
+}
+
+/* Header Periode PKL */
+body.pembimbing-page section.card.periode-pkl-pembimbing {
+  padding-top: 0 !important;
+}
+
+/* Header Menu Beri Tugas, Rekap Absensi,
+   Status Progress, dan Pantau & Review */
+body.pembimbing-page main.container > section.card:not(.periode-pkl-pembimbing) > h2 {
+  display: block;
+  box-sizing: content-box;
+  width: calc(100% + 70px);
+  margin: -40px 0 24px -35px;
+  padding: 18px 24px;
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+

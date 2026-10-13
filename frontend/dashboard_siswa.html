@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Siswa - Sistem PKL</title>
+  <link rel="stylesheet" href="css/style.css?v=1.5">
+</head>
+<body class="siswa-page siswa-bg-pattern">
+  <header class="navbar">
+  <h3>Selamat Datang, <span id="userNama">Siswa</span></h3>
+  
+<div class="user-profile">
+  <div id="realtime-clock" class="realtime-clock">
+    <div id="clock-time">00:00:00 WIB</div>
+    <div id="clock-date">Memuat tanggal...</div>
+  </div>
+
+  <button type="button" class="btn btn-danger btn-sm" id="btnLogout" onclick="logout()">keluar</button>
+</div>
+
+</header>
+
+<main class="container">
+    <!-- Periode PKL -->
+<section class="card periode-card">
+
+  <div class="periode-header">
+    <h2>Periode PKL</h2>
+    <span class="periode-status" id="statusPeriode">● Berjalan</span>
+  </div>
+
+  
+
+  <div class="periode-info">
+
+    <div class="periode-date-card">
+      <div class="periode-icon">📅</div>
+      <div class="periode-date-content">
+        <span>Tanggal Mulai</span>
+        <strong id="startPkl">-</strong>
+      </div>
+    </div>
+
+    <div class="periode-date-card">
+      <div class="periode-icon">📅</div>
+      <div class="periode-date-content">
+        <span>Tanggal Selesai</span>
+        <strong id="endPkl">-</strong>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="periode-warning">
+  <span class="warning-icon">⚠️</span>
+  <div>
+    <strong>Pengingat PKL</strong>
+    <p>Pastikan datang tepat waktu dan mengikuti jadwal PKL yang telah ditentukan. Jangan terlambat dan selalu patuhi peraturan di tempat PKL.</p>
+  </div>
+</div>
+
+</section>
+    <!-- Menu Absensi -->
+    <section class="card">
+      <h2>Menu Absensi</h2>
+      <div class="absen-actions">
+       <button class="btn btn-success" onclick="absenMasuk()">Absen Masuk</button>
+<button class="btn btn-warning" onclick="absenKeluar()">Absen Keluar</button>
+      </div>
+
+      <form id="formAbsensi" class="form-grid">
+        <div class="form-group">
+          <label for="statusAbsen">Status Kehadiran</label>
+          <select id="statusAbsen">
+            <option value="Hadir">Hadir</option>
+            <option value="Izin">Izin</option>
+            <option value="Sakit">Sakit</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="keteranganAbsen">Keterangan</label>
+          <input type="text" id="keteranganAbsen" placeholder="Contoh: Kerja Lapangan / Sakit demam">
+        </div>
+      </form>
+
+      <h3 class="mt-4">Riwayat Absensi</h3>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Waktu Masuk</th>
+              <th>Waktu Keluar</th>
+              <th>Status</th>
+              <th>Keterangan</th>
+            </tr>
+          </thead>
+          <tbody id="tabelAbsensiSiswa"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Menu Tugas & Laporan -->
+    <section class="card">
+      <h2>Menu Tugas & Laporan Harian</h2>
+      <form id="formLaporan">
+        <div class="form-group">
+          <label for="judulTugasLaporan">Judul Kegiatan</label>
+          <input type="text" id="judulTugasLaporan" placeholder="Masukkan judul..." required>
+        </div>
+        <div class="form-group">
+          <label for="isiLaporan">Isi Laporan Harian</label>
+          <textarea id="isiLaporan" rows="3" placeholder="Jelaskan pekerjaan hari ini..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Kirim Laporan</button>
+      </form>
+
+      <h3 class="mt-4">Status Review Laporan</h3>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th>Judul Kegiatan</th>
+              <th>Status Review</th>
+              <th>Komentar Pembimbing</th>
+            </tr>
+          </thead>
+          <tbody id="tabelLaporanSiswa"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Tugas dari Pembimbing</h2>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Judul Tugas</th>
+              <th>Deskripsi</th>
+              <th>Deadline</th>
+              <th>Mulai Tugas</th>
+              <th>Status Progress</th>
+            </tr>
+          </thead>
+          <tbody id="tabelTugasSiswa"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+  <script src="js/api.js"></script>
+
+  <script src="js/main.js"></script>
+  
+<script>
+  function updateRealtimeClock() {
+    const timeElement = document.getElementById("clock-time");
+    const dateElement = document.getElementById("clock-date");
+
+    if (!timeElement || !dateElement) return;
+
+    const now = new Date();
+
+    timeElement.textContent =
+      new Intl.DateTimeFormat("id-ID", {
+        timeZone: "Asia/Jakarta",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+      }).format(now) + " WIB";
+
+    dateElement.textContent =
+      new Intl.DateTimeFormat("id-ID", {
+        timeZone: "Asia/Jakarta",
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      }).format(now);
+  }
+
+  updateRealtimeClock();
+  setInterval(updateRealtimeClock, 1000);
+</script>
+
+</body>
+</html>
