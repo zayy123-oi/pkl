@@ -576,6 +576,74 @@ if (formLaporan) {
   });
 }
 
+
+function showKonfirmasiNonaktif(namaSiswa) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.className = "konfirmasi-nonaktif-overlay";
+
+    overlay.innerHTML = `
+      <div class="konfirmasi-nonaktif-modal">
+        <div class="konfirmasi-nonaktif-heading">
+          <div class="konfirmasi-nonaktif-icon">!</div>
+          <div>
+            <h3>Nonaktifkan Siswa</h3>
+            <p>Konfirmasi tindakan akun siswa.</p>
+          </div>
+        </div>
+
+        <p class="konfirmasi-nonaktif-nama">
+          Yakin ingin menonaktifkan
+          <strong>${namaSiswa}</strong>?
+        </p>
+
+        <div class="konfirmasi-nonaktif-info">
+          Akun siswa akan dinonaktifkan. Riwayat absensi
+          dan tugas tetap disimpan.
+        </div>
+
+        <div class="konfirmasi-nonaktif-actions">
+          <button type="button" class="btn-batal-nonaktif">
+            Batal
+          </button>
+          <button type="button" class="btn-setuju-nonaktif">
+            Ya, Nonaktifkan
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    let selesai = false;
+
+    function tutup(nilai) {
+      if (selesai) return;
+      selesai = true;
+      overlay.remove();
+      resolve(nilai);
+    }
+
+    overlay.querySelector(".btn-batal-nonaktif")
+      .addEventListener("click", () => tutup(false));
+
+    overlay.querySelector(".btn-setuju-nonaktif")
+      .addEventListener("click", () => tutup(true));
+
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) tutup(false);
+    });
+
+    document.addEventListener("keydown", function escape(e) {
+      if (e.key === "Escape" && !selesai) {
+        document.removeEventListener("keydown", escape);
+        tutup(false);
+      }
+    });
+  });
+}
+
+
 async function renderPembimbing() {
   const user = getSessionUser();
   if (!user) return;
@@ -704,16 +772,17 @@ if (selectSiswaPkl) {
         };
     });
 
+    
     // Tombol Delete: menonaktifkan siswa.
     document.querySelectorAll(".btn-hapus-periode").forEach(button => {
         button.onclick = async function () {
             const studentId = this.dataset.id;
-            const namaSiswa =
-                this.closest("tr")?.querySelector("td")?.textContent || "siswa ini";
 
-            const yakin = confirm(
-                `Nonaktifkan ${namaSiswa}?\n\nAkun siswa akan dinonaktifkan. Riwayat absensi dan tugas tetap disimpan.`
-            );
+            const namaSiswa =
+                this.closest("tr")?.querySelector("td")?.textContent.trim()
+                || "siswa ini";
+
+            const yakin = await showKonfirmasiNonaktif(namaSiswa);
 
             if (!yakin) {
                 return;
@@ -1619,9 +1688,292 @@ console.log(
   }
 }
 
+
+function cetakDaftarTugasAdmin() {
+  const data = window.dataAdmin || {};
+  const semuaTugas = data.tasks || [];
+  const siswa = data.students || [];
+  const pembimbing = data.supervisors || [];
+
+  const periode =
+    document.getElementById("periodeRekap")?.value || "semua";
+  const tanggalMulai =
+    document.getElementById("tanggalMulaiRekap")?.value || "";
+  const tanggalAkhir =
+    document.getElementById("tanggalAkhirRekap")?.value || "";
+
+  const sekarang = new Date();
+  sekarang.setHours(0, 0, 0, 0);
+
+  function tanggalTugas(tugas) {
+    const nilai =
+      tugas.startTugas ||
+      tugas.tanggal_mulai ||
+      tugas.created_at ||
+      tugas.tanggal_dibuat ||
+      tugas.deadline;
+
+    if (!nilai) return null;
+
+    const tanggal = new Date(nilai);
+    if (Number.isNaN(tanggal.getTime())) return null;
+
+    tanggal.setHours(0, 0, 0, 0);
+    return tanggal;
+  }
+
+  const awalMinggu = new Date(sekarang);
+  const hari = awalMinggu.getDay();
+  awalMinggu.setDate(
+    awalMinggu.getDate() - (hari === 0 ? 6 : hari - 1)
+  );
+
+  const awalBulan = new Date(
+    sekarang.getFullYear(),
+    sekarang.getMonth(),
+    1
+  );
+
+  const tugasTerfilter = semuaTugas.filter(tugas => {
+    const tanggal = tanggalTugas(tugas);
+
+    if (periode !== "semua") {
+      if (!tanggal) return false;
+
+      if (
+        periode === "hari" &&
+        tanggal.getTime() !== sekarang.getTime()
+      ) {
+        return false;
+      }
+
+      if (periode === "minggu" && tanggal < awalMinggu) {
+        return false;
+      }
+
+      if (periode === "bulan" && tanggal < awalBulan) {
+        return false;
+      }
+    }
+
+    if (tanggalMulai) {
+      const mulai = new Date(tanggalMulai + "T00:00:00");
+      if (!tanggal || tanggal < mulai) return false;
+    }
+
+    if (tanggalAkhir) {
+      const akhir = new Date(tanggalAkhir + "T00:00:00");
+      if (!tanggal || tanggal > akhir) return false;
+    }
+
+    return true;
+  });
+
+  function aman(nilai) {
+    const el = document.createElement("span");
+    el.textContent = String(nilai ?? "-");
+    return el.innerHTML;
+  }
+
+  function tanggalID(nilai) {
+    if (!nilai) return "-";
+
+    const tanggal = new Date(nilai);
+
+    return Number.isNaN(tanggal.getTime())
+      ? "-"
+      : tanggal.toLocaleDateString("id-ID");
+  }
+
+  function namaSiswa(tugas) {
+    const idSiswa = Number(tugas.id_siswa ?? tugas.student_id);
+
+    const dataSiswa = siswa.find(
+      item => Number(item.id) === idSiswa
+    );
+
+    return (
+      tugas.siswa?.nama ||
+      tugas.student?.nama ||
+      tugas.siswa?.name ||
+      tugas.student?.name ||
+      dataSiswa?.nama ||
+      dataSiswa?.name ||
+      "-"
+    );
+  }
+
+  function namaPembimbing(tugas) {
+    const idPembimbing = Number(
+      tugas.id_pembimbing ?? tugas.supervisor_id
+    );
+
+    const dataPembimbing = pembimbing.find(
+      item => Number(item.id) === idPembimbing
+    );
+
+    return (
+      tugas.pembimbing?.nama ||
+      tugas.pembimbing?.name ||
+      tugas.supervisor?.nama ||
+      tugas.supervisor?.name ||
+      dataPembimbing?.nama ||
+      dataPembimbing?.name ||
+      "-"
+    );
+  }
+
+  const isiTabel = tugasTerfilter.map((tugas, index) => `
+    <tr>
+      <td>${index + 1}</td>
+      <td>${aman(namaSiswa(tugas))}</td>
+      <td>${aman(tugas.judul_tugas || tugas.title || "-")}</td>
+      <td>${aman(namaPembimbing(tugas))}</td>
+      <td>${aman(tanggalID(tugas.startTugas || tugas.tanggal_mulai))}</td>
+      <td>${aman(tanggalID(tugas.deadline))}</td>
+    </tr>
+  `).join("");
+
+  const namaPeriode = {
+    semua: "Semua Periode",
+    hari: "Hari Ini",
+    minggu: "Minggu Ini",
+    bulan: "Bulan Ini"
+  };
+
+  const rentangTanggal =
+    tanggalMulai || tanggalAkhir
+      ? `${tanggalMulai ? tanggalID(tanggalMulai) : "Awal"} sampai ${
+          tanggalAkhir ? tanggalID(tanggalAkhir) : "Sekarang"
+        }`
+      : "Tidak dibatasi tanggal khusus";
+
+  const jendelaCetak = window.open("", "_blank");
+
+  if (!jendelaCetak) {
+    alert("Popup cetak diblokir browser. Izinkan popup untuk halaman ini.");
+    return;
+  }
+
+  jendelaCetak.document.write(`
+    <!DOCTYPE html>
+    <html lang="id">
+    <head>
+      <meta charset="UTF-8">
+      <title>Daftar Tugas PKL</title>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          color: #222;
+          padding: 20px;
+        }
+
+        h2 {
+          text-align: center;
+          margin-bottom: 6px;
+        }
+
+        .info {
+          margin: 4px 0;
+          font-size: 12px;
+        }
+
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 18px;
+          font-size: 11px;
+        }
+
+        th, td {
+          border: 1px solid #555;
+          padding: 8px 6px;
+          text-align: left;
+        }
+
+        th {
+          background: #eee;
+        }
+
+        .kosong {
+          text-align: center;
+        }
+
+        @page {
+          size: A4 portrait;
+          margin: 12mm;
+        }
+
+        @media print {
+          body {
+            padding: 0;
+          }
+
+          th {
+            background: #eee !important;
+            print-color-adjust: exact;
+          }
+        }
+      </style>
+    </head>
+    <body>
+      <h2>Laporan Daftar Tugas PKL</h2>
+
+      <p class="info">
+        Periode: ${aman(namaPeriode[periode] || periode)}
+      </p>
+
+      <p class="info">
+        Rentang tanggal: ${aman(rentangTanggal)}
+      </p>
+
+      <p class="info">
+        Tanggal cetak: ${aman(new Date().toLocaleDateString("id-ID"))}
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Nama Siswa</th>
+            <th>Nama Tugas</th>
+            <th>Pemberi Tugas</th>
+            <th>Tanggal Mulai</th>
+            <th>Deadline</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${isiTabel || `
+            <tr>
+              <td colspan="6" class="kosong">
+                Tidak ada tugas pada periode ini.
+              </td>
+            </tr>
+          `}
+        </tbody>
+      </table>
+
+      <script>
+        window.onload = function() {
+          window.print();
+        };
+      <\/script>
+    </body>
+    </html>
+  `);
+
+  jendelaCetak.document.close();
+}
+
+
 // Tombol untuk menampilkan rekap tugas
 document.getElementById("btnTampilkanRekap")
   ?.addEventListener("click", renderRekapAdmin);
+
+  
+document.getElementById("btnCetakDaftarTugas")
+  ?.addEventListener("click", cetakDaftarTugasAdmin);
+
 
 // Perbarui rekap ketika periode berubah
 document.getElementById("periodeRekap")
