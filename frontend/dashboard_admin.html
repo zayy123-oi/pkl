@@ -1,0 +1,297 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Sistem PKL</title>
+    <link rel="stylesheet" href="css/style.css?v=1.6">
+</head>
+<body class="admin-page">
+
+    <div class="admin-layout">
+
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-brand">
+                <h2>PKL Admin</h2>
+                <p>Sistem Monitoring PKL</p>
+            </div>
+
+            <nav class="sidebar-menu">
+                <button type="button" class="sidebar-link active"
+                    data-halaman="dashboard">
+                    Dashboard
+                </button>
+
+                <button type="button" class="sidebar-link"
+                    data-halaman="rekap-absensi">
+                    Rekap Absensi
+                </button>
+
+                <button type="button" class="sidebar-link"
+                    data-halaman="data-siswa">
+                    Data Siswa
+                </button>
+
+                <button type="button" class="sidebar-link"
+                    data-halaman="data-pembimbing">
+                    Data Pembimbing
+                </button>
+
+                <button type="button" class="sidebar-link"
+                    data-halaman="rekap-tugas">
+                    Rekap Tugas
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button type="button" class="btn btn-danger"
+                    id="btnLogout">
+                    Keluar
+                </button>
+            </div>
+        </aside>
+
+        <!-- Area utama -->
+        <div class="admin-content">
+
+            <header class="navbar">
+                <h3 id="judulHalaman">Dashboard Admin</h3>
+
+                <div class="user-profile">
+                    <div id="realtime-clock" class="realtime-clock">
+                        <div id="clock-time">00:00:00 WIB</div>
+                        <div id="clock-date">Memuat tanggal...</div>
+                    </div>
+
+                    <span id="adminNama">Admin</span>
+                </div>
+            </header>
+
+            <main class="container">
+
+                <!-- Dashboard -->
+                <section class="admin-halaman" id="halaman-dashboard">
+                    <section class="card">
+                        <h2>Selamat Datang, <span id="adminNamaDashboard">Admin</span></h2>
+                        <p>
+                            Halaman ini digunakan untuk memantau data siswa,
+                            pembimbing, dan rekap tugas PKL.
+                        </p>
+                        <p>
+                            Admin hanya dapat melihat data dan tidak dapat
+                            menambah, mengubah, atau menghapus data.
+                        </p>
+                    </section>
+
+                    <section class="card">
+                        <h2>Ringkasan Data</h2>
+
+                        <div class="form-grid">
+                            <div class="card">
+                                <h3>Total Siswa</h3>
+                                <h2 id="totalSiswa">-</h2>
+                            </div>
+
+                            <div class="card">
+                                <h3>Total Pembimbing</h3>
+                                <h2 id="totalPembimbing">-</h2>
+                            </div>
+
+                            <div class="card">
+                                <h3>Total Tugas</h3>
+                                <h2 id="totalTugas">-</h2>
+                            </div>
+
+                            <div class="card">
+                                <h3>Tugas Selesai</h3>
+                                <h2 id="tugasSelesai">-</h2>
+                            </div>
+                        </div>
+                    </section>
+                </section>
+
+                <!-- Rekap Absensi -->
+                <section class="admin-halaman" id="halaman-rekap-absensi" hidden>
+                    <section class="card">
+                        <h2>Rekap Absensi</h2>
+                        <p>
+                            Halaman untuk melihat data kehadiran siswa PKL.
+                        </p>
+
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Nama Siswa</th>
+                                        <th>Tanggal</th>
+                                        <th>Jam Masuk</th>
+                                        <th>Jam Keluar</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelRekapAbsensi">
+                                    <tr>
+                                        <td colspan="6">
+                                            Data absensi akan ditampilkan setelah
+                                            dihubungkan ke backend.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </section>
+
+                <!-- Data Siswa -->
+                <section class="admin-halaman" id="halaman-data-siswa" hidden>
+                    <section class="card" id="bagianDataSiswa">
+                        <h2>Data Siswa</h2>
+                        <p>Daftar siswa yang terdaftar dalam sistem PKL.</p>
+
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Nama Siswa</th>
+                                        <th>NIS</th>
+                                        <th>Kelas</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelDataSiswa">
+                                    <tr>
+                                        <td colspan="4">
+                                            Data siswa akan ditampilkan di sini.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </section>
+
+                <!-- Data Pembimbing -->
+                <section class="admin-halaman" id="halaman-data-pembimbing" hidden>
+                    <section class="card" id="bagianDataPembimbing">
+                        <h2>Data Pembimbing</h2>
+                        <p>Daftar pembimbing yang terdaftar dalam sistem PKL.</p>
+
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Nama Pembimbing</th>
+                                        <th>Asal Daerah</th>
+                                        <th>Nomor Telepon</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelDataPembimbing">
+                                    <tr>
+                                        <td colspan="4">
+                                            Data pembimbing akan ditampilkan di sini.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </section>
+
+                <!-- Rekap Tugas -->
+                <section class="admin-halaman" id="halaman-rekap-tugas" hidden>
+                    <section class="card" id="bagianRekapTugas">
+                        <h2>Rekap Tugas PKL</h2>
+                        <p>Pilih periode untuk melihat rekap tugas siswa.</p>
+
+                        <div class="form-group">
+                            <label for="periodeRekap">Periode Rekap</label>
+                            <select id="periodeRekap">
+                                <option value="hari">Harian</option>
+                                <option value="minggu">Mingguan</option>
+                                <option value="bulan">Bulanan</option>
+                                <option value="semua">Keseluruhan</option>
+                            </select>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="tanggalMulaiRekap">Tanggal Mulai</label>
+                                <input type="date" id="tanggalMulaiRekap">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="tanggalAkhirRekap">Tanggal Selesai</label>
+                                <input type="date" id="tanggalAkhirRekap">
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-primary"
+                            id="btnTampilkanRekap">
+                            Tampilkan Rekap
+                        </button>
+
+                        <div class="table-responsive" style="margin-top: 1.5rem;">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Nama Siswa</th>
+                                        <th>Judul Tugas</th>
+                                        <th>Tanggal Mulai</th>
+                                        <th>Deadline</th>
+                                        <th>Status Progres</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelRekapTugas">
+                                    <tr>
+                                        <td colspan="6">
+                                            Data rekap akan ditampilkan di sini.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <section class="card">
+                        <h2>Ringkasan Status Tugas</h2>
+
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Status</th>
+                                        <th>Jumlah Tugas</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelStatusTugas">
+                                    <tr>
+                                        <td>Belum Mulai</td>
+                                        <td id="jumlahPending">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sedang Dikerjakan</td>
+                                        <td id="jumlahProses">-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Selesai</td>
+                                        <td id="jumlahSelesai">-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

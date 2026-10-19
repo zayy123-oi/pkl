@@ -1,12 +1,16 @@
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 from app.routers import health,students,mentors,auth,location,task,reports,attendances
 from fastapi.middleware.cors import CORSMiddleware
+
 @asynccontextmanager
-async def lifespan(app:FastAPI):
+async def lifespan(app: FastAPI):
     yield
 
-app=FastAPI(
+app = FastAPI(
     title="absensi_pkl_api",
     description="RESTAPI absensi_siswa dan jwt autentication",
     version="1",
@@ -14,7 +18,17 @@ app=FastAPI(
     openapi_url="/openapi.json",
     swagger_ui_oauth2_redirect_url="/docs/oauth2-redirect",
     lifespan=lifespan,
+)
 
+# Folder untuk menyimpan foto laporan
+UPLOAD_DIR = Path(__file__).resolve().parents[1] / "uploads"
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+# Mengizinkan foto diakses melalui URL
+app.mount(
+    "/uploads",
+    StaticFiles(directory=str(UPLOAD_DIR)),
+    name="uploads",
 )
 
 app.add_middleware(
@@ -22,13 +36,12 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5500",
         "http://127.0.0.1:5500",
-
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-
 )
+
 app.include_router(health.router, prefix="/api")
 app.include_router(students.router, prefix="/api")
 app.include_router(mentors.router, prefix="/api")
@@ -38,9 +51,11 @@ app.include_router(task.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
 app.include_router(attendances.router, prefix="/api")
 
+
 @app.get("/api/tasks", tags=["tasks"], summary="Get all tasks")
 def get_tasks():
     return []
+
 
 @app.get("/api/locations", tags=["locations"], summary="Get all locations")
 def get_locations(active_only: bool = True):

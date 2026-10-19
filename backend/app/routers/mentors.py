@@ -1,11 +1,11 @@
-from fastapi import APIRouter, HTTPException,Depends
+
+from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import Mentor
 from app.schemas import MentorCreate, MentorOut, MentorUpdate
 from app.security import require_roles
-
 
 
 router = APIRouter(prefix="/mentors", tags=["mentors"])
@@ -24,11 +24,12 @@ def get_mentor_by_id(mentor_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Mentor tidak ditemukan")
     return mentor
 
+
 @router.post(
-    "", 
-    summary="Create a new mentor", 
-    response_model=MentorOut, 
-    status_code=201, 
+    "",
+    summary="Create a new mentor",
+    response_model=MentorOut,
+    status_code=201,
     dependencies=[Depends(require_roles("admin"))]
 )
 def create_mentor(payload: MentorCreate, db: Session = Depends(get_db)):
@@ -39,7 +40,12 @@ def create_mentor(payload: MentorCreate, db: Session = Depends(get_db)):
     return mentor
 
 
-@router.patch("/{mentor_id}", summary="Update mentor data", response_model=MentorOut, dependencies=[Depends(require_roles("admin"))])
+@router.patch(
+    "/{mentor_id}",
+    summary="Update mentor data",
+    response_model=MentorOut,
+    dependencies=[Depends(require_roles("admin"))]
+)
 def update_mentor(mentor_id: int, data: MentorUpdate, db: Session = Depends(get_db)):
     mentor = db.scalar(select(Mentor).where(Mentor.id == mentor_id))
     if not mentor:
@@ -54,7 +60,12 @@ def update_mentor(mentor_id: int, data: MentorUpdate, db: Session = Depends(get_
     return mentor
 
 
-@router.delete("/{mentor_id}", summary="Delete mentor", status_code=204, dependencies=[Depends(require_roles("admin"))])
+@router.delete(
+    "/{mentor_id}",
+    summary="Delete mentor",
+    status_code=204,
+    dependencies=[Depends(require_roles("admin"))]
+)
 def delete_mentor(mentor_id: int, db: Session = Depends(get_db)):
     mentor = db.scalar(select(Mentor).where(Mentor.id == mentor_id))
     if not mentor:

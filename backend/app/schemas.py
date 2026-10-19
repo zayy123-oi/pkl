@@ -1,8 +1,20 @@
+
 from datetime import date,datetime
 from typing import Literal,Optional
 from pydantic import BaseModel,ConfigDict,Field
-AttendanceStatus=Literal["hadir","terlambat","izin","sakit","alpa","ditolak"] 
-AttendanceType=Literal["masuk","keluar"]
+
+AttendanceStatus = Literal[
+    "hadir",
+    "terlambat",
+    "izin",
+    "sakit",
+    "alpa",
+    "ditolak",
+    "bekerja"
+]
+
+AttendanceType = Literal["masuk", "keluar"]
+
 class studentCreate(BaseModel):
     nama:str=Field(min_length=1,max_length=50)
     kelas:str=Field(min_length=1,max_length=50)
@@ -14,7 +26,8 @@ class studentCreate(BaseModel):
 
 class studentOut(studentCreate):
     model_config=ConfigDict(from_attributes=True)
-    id:int   
+    id:int
+
 class StudentUpdate(BaseModel):
     nama: Optional[str] = Field(None, min_length=1, max_length=50)
     kelas: Optional[str] = Field(None, min_length=1, max_length=50)
@@ -23,9 +36,11 @@ class StudentUpdate(BaseModel):
     nis: Optional[str] = Field(None, min_length=1, max_length=20)
     startPkl: Optional[date] = None
     endPkl: Optional[date] = None
+
 class StudentPklUpdate(BaseModel):
     startPkl: Optional[date] = None
     endPkl: Optional[date] = None
+
 class StudentSchema(BaseModel):
     id: int
     nama: str | None = None
@@ -36,6 +51,7 @@ class StudentSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
 class LoginUser(BaseModel):
     id: int
     username: str
@@ -44,18 +60,18 @@ class LoginUser(BaseModel):
     student_id: int | None = None
     supervisor_id: int | None = None
 
-
 class LoginResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     expires_in: int
     user: LoginUser
 
-    # --- SCHEMAS FOR MENTOR ---
+# --- SCHEMAS FOR MENTOR ---
 class MentorCreate(BaseModel):
     nama: str = Field(min_length=1, max_length=50)
     asal_daerah: Optional[str] = Field(None, min_length=1, max_length=50)
     nomer_telepon: Optional[str] = Field(None, min_length=1, max_length=15)
+
 class MentorOut(MentorCreate):
     model_config = ConfigDict(from_attributes=True)
     id: int
@@ -64,8 +80,8 @@ class MentorUpdate(BaseModel):
     nama: Optional[str] = Field(None, min_length=1, max_length=50)
     asal_daerah: Optional[str] = Field(None, min_length=1, max_length=50)
     nomer_telepon: Optional[str] = Field(None, min_length=1, max_length=15)
-    
-  # --- SCHEMAS FOR attendance ---
+
+# --- SCHEMAS FOR attendance ---
 class LocationCreate(BaseModel):
     nama: str = Field(min_length=1, max_length=50)
     latitude: float = Field(ge=-90,le=90)
@@ -96,7 +112,6 @@ class AttendanceCreate(BaseModel):
     location_accuracy_meters: float | None = Field(default=None, ge=0)
     note: str | None = None
 
-
 class AttendanceUpdate(BaseModel):
     supervisor_id: int | None = None
     location_id: int | None = None
@@ -107,7 +122,6 @@ class AttendanceUpdate(BaseModel):
     longitude: float | None = Field(default=None, ge=-180, le=180)
     location_accuracy_meters: float | None = Field(default=None, ge=0)
     note: str | None = None
-
 
 class AttendanceResponse(BaseModel):
     id: int
@@ -128,8 +142,7 @@ class AttendanceResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    # TAMBAHKAN FIELD INI:
-    # Harus sesuai dengan nama relationship di model SQLAlchemy (Attendance.student)
+    # Harus sesuai dengan nama relationship di model SQLAlchemy
     student: StudentSchema | None = None
 
     class Config:
@@ -170,7 +183,7 @@ class TaskOut(TaskBase):
     status_progress: Optional[str] = None
     startTugas: Optional[datetime] = None
 
-    # --- SCHEMAS FOR REPORT ---
+# --- SCHEMAS FOR REPORT ---
 class ReportBase(BaseModel):
     isi_laporan: str
     tanggal_laporan: Optional[date] = None
@@ -182,7 +195,7 @@ class ReportCreate(ReportBase):
 class ReportUpdate(BaseModel):
     isi_laporan: Optional[str] = None
     tanggal_laporan: Optional[date] = None
-    status_review: Optional[str] = Field(None, max_length=20)  # pending, disetujui, ditolak
+    status_review: Optional[str] = Field(None, max_length=20)
     komentar_pembimbing: Optional[str] = None
 
 class ReportOut(ReportBase):
@@ -193,7 +206,6 @@ class ReportOut(ReportBase):
     id_tugas: Optional[int] = None
     status_review: Optional[str] = None
     komentar_pembimbing: Optional[str] = None
+    foto_laporan: Optional[str] = None
 
     siswa: Optional[StudentSchema] = None
-
-    

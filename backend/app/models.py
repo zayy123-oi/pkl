@@ -1,26 +1,34 @@
-from datetime import date,datetime
-from sqlalchemy import Boolean,Date,DateTime,Float,ForeignKey,Index,Integer,String,Text
-from sqlalchemy.orm import Mapped,mapped_column,relationship
+
+from datetime import date, datetime
+from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Index, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.database import Base
+
+
 class Student(Base):
-    __tablename__="tabel_siswa"
-    id:Mapped[int]=mapped_column(Integer,primary_key=True)
-    nama:Mapped[str]=mapped_column(String(50))
-    kelas:Mapped[str]=mapped_column(String(50))
-    asal_sekolah:Mapped[str]=mapped_column(String(50))
-    nomer_telepon:Mapped[str]=mapped_column(String(15))
-    nis:Mapped[str]=mapped_column(String(20),unique=True,index=True)
+    __tablename__ = "tabel_siswa"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    nama: Mapped[str] = mapped_column(String(50))
+    kelas: Mapped[str] = mapped_column(String(50))
+    asal_sekolah: Mapped[str] = mapped_column(String(50))
+    nomer_telepon: Mapped[str] = mapped_column(String(15))
+    nis: Mapped[str] = mapped_column(String(20), unique=True, index=True)
     startPkl: Mapped[date | None] = mapped_column(Date, nullable=True)
     endPkl: Mapped[date | None] = mapped_column(Date, nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+
     supervisor_id: Mapped[int | None] = mapped_column(
-    ForeignKey("tabel_pembimbing.id"),
-    nullable=True,
-    index=True
-)
+        ForeignKey("tabel_pembimbing.id"),
+        nullable=True,
+        index=True
+    )
+
     attendances: Mapped[list["Attendance"]] = relationship(
         back_populates="student",
         cascade="all, delete-orphan",
     )
+
 
 class User(Base):
     __tablename__ = "users"
@@ -34,10 +42,11 @@ class User(Base):
     supervisor_id: Mapped[int | None] = mapped_column(ForeignKey("tabel_pembimbing.id"), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)    
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 
 class Mentor(Base):
-    __tablename__ = "tabel_pembimbing"  # Sesuaikan dengan nama tabel mentor/pembimbing di SQL Server kamu
+    __tablename__ = "tabel_pembimbing"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     nama: Mapped[str] = mapped_column(String(50))
@@ -45,15 +54,16 @@ class Mentor(Base):
     nomer_telepon: Mapped[str | None] = mapped_column(String(15), nullable=True)
     attendances: Mapped[list["Attendance"]] = relationship(back_populates="mentor")
 
+
 class Location(Base):
-    __tablename__ = "tabel_lokasi"  # Sesuaikan dengan nama tabel mentor/pembimbing di SQL Server kamu
+    __tablename__ = "tabel_lokasi"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     nama: Mapped[str] = mapped_column(String(50))
     latitude: Mapped[float | None] = mapped_column(Float, nullable=True)
     longitude: Mapped[float | None] = mapped_column(Float, nullable=True)
-    radius_meter: Mapped[float | None] = mapped_column(Float, nullable=True,default=100.0)
-    is_aktif: Mapped[bool | None] = mapped_column(Boolean,default=True)
+    radius_meter: Mapped[float | None] = mapped_column(Float, nullable=True, default=100.0)
+    is_aktif: Mapped[bool | None] = mapped_column(Boolean, default=True)
 
     attendances: Mapped[list["Attendance"]] = relationship(back_populates="location")
 
@@ -92,6 +102,7 @@ class Attendance(Base):
         Index("ix_attendance_student_date_type", "student_id", "attendance_date", "attendance_type"),
     )
 
+
 class Task(Base):
     __tablename__ = "tugas"
 
@@ -104,9 +115,10 @@ class Task(Base):
     startTugas: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     status: Mapped[str | None] = mapped_column(String(20), default="pending")
     status_progress: Mapped[str | None] = mapped_column(String(20), default="pending")
-    # Relasi (Opsional)
+
     student: Mapped["Student"] = relationship()
     mentor: Mapped["Mentor"] = relationship()
+
 
 class Report(Base):
     __tablename__ = "laporan"
@@ -116,9 +128,9 @@ class Report(Base):
     id_tugas: Mapped[int | None] = mapped_column(ForeignKey("tugas.id"), nullable=True, index=True)
     tanggal_laporan: Mapped[date | None] = mapped_column(Date, default=date.today)
     isi_laporan: Mapped[str] = mapped_column(Text)
+    foto_laporan: Mapped[str | None] = mapped_column(String(255),nullable=True)
     status_review: Mapped[str | None] = mapped_column(String(20), default="pending")
     komentar_pembimbing: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    # Relasi (Opsional)
     siswa: Mapped["Student"] = relationship()
     task: Mapped["Task | None"] = relationship()

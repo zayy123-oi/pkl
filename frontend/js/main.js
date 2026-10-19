@@ -221,9 +221,24 @@ if (loginForm) {
       const data = await Api.login(username, password);
       localStorage.setItem("access_token", data.access_token);
       saveSessionUser(data.user);
-      if (data.user.role === "siswa") location.href = "dashboard_siswa.html";
-      else if (data.user.role === "pembimbing") location.href = "dashboard_pembimbing.html";
-      else if (data.user.role === "admin") location.href = "dashboard_admin.html";
+     
+if (data.user.role === "siswa") {
+  location.href = "dashboard_siswa.html";
+} else if (data.user.role === "pembimbing") {
+  location.href = "dashboard_pembimbing.html";
+} else if (data.user.role === "admin") {
+  location.href = "dashboard_admin.html";
+} else {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("sessionUser");
+
+  const loginError = document.getElementById("loginError");
+  if (loginError) {
+    loginError.textContent = "Role akun tidak diizinkan";
+    loginError.style.display = "block";
+  }
+}
+
     } catch (e) {
   const loginError = document.getElementById("loginError");
 
@@ -279,6 +294,7 @@ if (statusPeriode && student.startPkl && student.endPkl) {
     Api.reports(),
     Api.tasks()
   ]);
+  console.log("DATA LAPORAN SISWA:", reports);
 
   const tbodyAbsen = document.getElementById("tabelAbsensiSiswa");
   if (tbodyAbsen) {
@@ -310,28 +326,49 @@ if (statusPeriode && student.startPkl && student.endPkl) {
       </tr>`).join("") || `<tr><td colspan="4">Belum ada data absensi.</td></tr>`;
   }
 
+ 
   const tbodyLaporan = document.getElementById("tabelLaporanSiswa");
+
   if (tbodyLaporan) {
-    // Determine student ID for filtering
     const studentId = Number(user.student_id || user.id_siswa || user.id);
 
-    // Filter reports so students only see their own submissions
     const studentReports = (reports || []).filter(
       item => Number(item.id_siswa || item.student_id) === studentId
     );
 
-    tbodyLaporan.innerHTML = studentReports.map(item => `
-      <tr>
-        <td>${formatDate(item.tanggal_laporan || item.report_date || item.created_at)}</td>
-        <td>${item.isi_laporan || item.judul_kegiatan || item.title || "-"}</td>
-        <td>
-          <span class="status-review">
-            ${(item.status_review === "pending" || item.review_status === "menunggu_review") ? "Menunggu Review" : (item.status_review === "disetujui" || item.review_status === "disetujui") ? "Disetujui" : "Ditolak"}
-          </span>
-        </td>
-        <td>${item.komentar_pembimbing || item.review_comment || "-"}</td>
-      </tr>`).join("") || `<tr><td colspan="4">Belum ada laporan.</td></tr>`;
+    tbodyLaporan.innerHTML = studentReports.map(item => {
+      const fotoHtml = item.foto_laporan
+  ? `
+    <a
+      href="http://127.0.0.1:8000/uploads/laporan/${encodeURIComponent(item.foto_laporan)}"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Lihat Foto
+    </a>
+  `
+  : "-";
+
+      const status = item.status_review || item.review_status || "pending";
+      const statusText =
+        status === "pending" || status === "menunggu_review"
+          ? "Menunggu Review"
+          : status === "disetujui"
+            ? "Disetujui"
+            : "Ditolak";
+
+      return `
+        <tr>
+          <td>${formatDate(item.tanggal_laporan || item.report_date || item.created_at)}</td>
+          <td>${item.isi_laporan || item.judul_kegiatan || item.title || "-"}</td>
+          <td>${fotoHtml}</td>
+          <td><span class="status-review">${statusText}</span></td>
+          <td>${item.komentar_pembimbing || item.review_comment || "-"}</td>
+        </tr>
+      `;
+    }).join("") || `<tr><td colspan="5">Belum ada laporan.</td></tr>`;
   }
+
 
   const tbodyTugas = document.getElementById("tabelTugasSiswa");
   if (tbodyTugas) {
@@ -473,35 +510,69 @@ window.ubahProgressTugas = async function(id, status) {
 };
 
 const formLaporan = document.getElementById("formLaporan");
+
 if (formLaporan) {
-  formLaporan.addEventListener("submit", async e => {
+  formLaporan.addEventListener("submit", async (e) => {
     e.preventDefault();
+
     try {
       const user = getSessionUser();
-      const studentId = Number(user?.student_id || user?.id_siswa || user?.id);
+      const studentId = Number(
+        user?.student_id || user?.id_siswa || user?.id
+      );
 
       if (!studentId) {
-        alert("ID Siswa tidak ditemukan. Silakan logout lalu login kembali.");
+        alert("ID siswa tidak ditemukan. Silakan login ulang.");
         return;
       }
 
-      await Api.createReport({
-        id_siswa: studentId,
-        id_tugas: 1, // Diisi default ID Tugas (misal: 1) agar tidak NULL di database
-        isi_laporan: document.getElementById("isiLaporan").value.trim()
-      });
+      const isiLaporan = document
+        .getElementById("isiLaporan")
+        .value.trim();
 
-      
-showAttendancePopup(
-  "success",
-  "Laporan Berhasil!",
-  "Laporan berhasil dikirim ke server."
-);
+      const inputFoto = document.getElementById("fotoLaporan");
+      const foto = inputFoto?.files?.[0];
 
-formLaporan.reset();
-await renderSiswa();
+      const formData = new FormData();
+      formData.append("id_siswa", String(studentId));
+      formData.append("isi_laporan", isiLaporan);
+      formData.append("id_tugas", "1");
 
-    } catch (e) { showError(e); }
+      if (foto) {
+        formData.append("foto_laporan", foto);
+      }
+
+      const hasilLaporan = await Api.createReportWithPhoto(formData);
+
+      console.log("HASIL KIRIM LAPORAN:", hasilLaporan);
+
+     showAttendancePopup(
+     "success",
+     "Laporan Berhasil",
+     "Laporan harian berhasil dikirim."
+     );
+
+      formLaporan.reset();
+
+      const previewContainer = document.getElementById(
+        "previewFotoContainer"
+      );
+      const previewImage = document.getElementById(
+        "previewFotoLaporan"
+      );
+
+      if (previewContainer) {
+        previewContainer.style.display = "none";
+      }
+
+      if (previewImage) {
+        previewImage.removeAttribute("src");
+      }
+
+      await renderSiswa();
+    } catch (e) {
+      showError(e);
+    }
   });
 }
 
@@ -515,98 +586,199 @@ async function renderPembimbing() {
   const startPkl = document.getElementById("startPkl");
   const endPkl = document.getElementById("endPkl");
 
-  if (selectSiswaPkl) {
-  const students = await Api.students(false);
-
-  selectSiswaPkl.innerHTML = `
-    <option value="">-- Pilih Siswa --</option>
-    ${(students || []).map(student => `
-      <option value="${student.id}">
-        ${student.nama}
-      </option>
-    `).join("")}
-  `;
-
-  // Tabel daftar periode PKL siswa
-  const tabelPeriodePkl = document.getElementById("tabelPeriodePkl");
-
-  if (tabelPeriodePkl) {
-    tabelPeriodePkl.innerHTML = "";
-
-    (students || []).forEach(student => {
-      const mulai = student.startPkl
-        ? formatDate(student.startPkl)
-        : "-";
-
-      const selesai = student.endPkl
-        ? formatDate(student.endPkl)
-        : "-";
-
-      let status = "-";
-
-      if (student.startPkl && student.endPkl) {
-        const hariIni = new Date();
-        const tanggalMulai = new Date(student.startPkl);
-        const tanggalSelesai = new Date(student.endPkl);
-
-        hariIni.setHours(0, 0, 0, 0);
-        tanggalMulai.setHours(0, 0, 0, 0);
-        tanggalSelesai.setHours(0, 0, 0, 0);
-
-        if (hariIni < tanggalMulai) {
-          status = "Belum Mulai";
-        } else if (hariIni > tanggalSelesai) {
-          status = "Selesai";
-        } else {
-          status = "Berjalan";
-        }
-      }
-
-      tabelPeriodePkl.innerHTML += `
-        <tr>
-          <td>${student.nama || "-"}</td>
-          <td>${mulai}</td>
-          <td>${selesai}</td>
-          <td>${status}</td>
-        </tr>
-      `;
-    });
-  }
-
-  selectSiswaPkl.onchange = async function () {
-  const studentId = this.value;
-
-  if (!studentId) {
-    if (startPkl) startPkl.value = "";
-    if (endPkl) endPkl.value = "";
-    return;
-  }
-
-  try {
-    const student = await Api.student(studentId);
-
-    if (startPkl) startPkl.value = student.startPkl || "";
-    if (endPkl) endPkl.value = student.endPkl || "";
-  } catch (error) {
-    showError(error);
-  }
-};
-  }
   
-  const selectSiswaTugas = document.getElementById("siswaTugas");
+if (selectSiswaPkl) {
+    // Ambil semua siswa, termasuk siswa nonaktif.
+    const students = await Api.students(false);
 
-if (selectSiswaTugas) {
-  const students = await Api.students(false);
+    // Isi dropdown siswa.
+    selectSiswaPkl.innerHTML = `
+        <option value="">-- Pilih Siswa --</option>
+        ${(students || []).map(student => `
+            <option value="${student.id}">
+                ${student.nama || "-"}${student.is_active === false ? " (Nonaktif)" : ""}
+            </option>
+        `).join("")}
+    `;
 
-  selectSiswaTugas.innerHTML = `
-    <option value="">-- Pilih Siswa --</option>
-    ${(students || []).map(student => `
-      <option value="${student.id}">
-        ${student.nama}
-      </option>
-    `).join("")}
-  `;
+    const tabelPeriodePkl = document.getElementById("tabelPeriodePkl");
+
+    // Tampilkan tabel periode PKL.
+    if (tabelPeriodePkl) {
+        tabelPeriodePkl.innerHTML = "";
+
+        (students || []).forEach(student => {
+            const nonaktif = student.is_active === false;
+            const mulai = student.startPkl
+                ? formatDate(student.startPkl)
+                : "-";
+            const selesai = student.endPkl
+                ? formatDate(student.endPkl)
+                : "-";
+
+            let status = nonaktif ? "Nonaktif" : "-";
+
+            if (!nonaktif && student.startPkl && student.endPkl) {
+                const hariIni = new Date();
+                const tanggalMulai = new Date(student.startPkl);
+                const tanggalSelesai = new Date(student.endPkl);
+
+                hariIni.setHours(0, 0, 0, 0);
+                tanggalMulai.setHours(0, 0, 0, 0);
+                tanggalSelesai.setHours(0, 0, 0, 0);
+
+                if (hariIni < tanggalMulai) {
+                    status = "Belum Mulai";
+                } else if (hariIni > tanggalSelesai) {
+                    status = "Selesai";
+                } else {
+                    status = "Berjalan";
+                }
+            }
+
+            const baris = document.createElement("tr");
+
+            baris.innerHTML = `
+                <td>${student.nama || "-"}</td>
+                <td>${mulai}</td>
+                <td>${selesai}</td>
+                <td>${status}</td>
+                <td>
+                    <div class="aksi-periode">
+                        <button
+                            type="button"
+                            class="btn btn-primary btn-edit-periode"
+                            data-id="${student.id}">
+                            ${nonaktif ? "Aktifkan / Update" : "Update"}
+                        </button>
+
+                        ${nonaktif ? "" : `
+                            <button
+                                type="button"
+                                class="btn btn-danger btn-hapus-periode"
+                                data-id="${student.id}">
+                                Delete
+                            </button>
+                        `}
+                    </div>
+                </td>
+            `;
+
+            tabelPeriodePkl.appendChild(baris);
+        });
+    }
+
+    // Tombol Update atau Aktifkan.
+    document.querySelectorAll(".btn-edit-periode").forEach(button => {
+        button.onclick = async function () {
+            const studentId = this.dataset.id;
+
+            selectSiswaPkl.value = studentId;
+
+            try {
+                const student = await Api.student(studentId);
+
+                if (startPkl) {
+                    startPkl.value = student.startPkl || "";
+                }
+
+                if (endPkl) {
+                    endPkl.value = student.endPkl || "";
+                }
+
+                document.getElementById("startPkl")?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+
+                if (student.is_active === false) {
+                    showAttendancePopup(
+                        "warning",
+                        "Siswa Nonaktif",
+                        "Atur tanggal PKL, lalu tekan Simpan Periode PKL untuk mengaktifkan kembali siswa."
+                    );
+                }
+            } catch (error) {
+                showError(error);
+            }
+        };
+    });
+
+    // Tombol Delete: menonaktifkan siswa.
+    document.querySelectorAll(".btn-hapus-periode").forEach(button => {
+        button.onclick = async function () {
+            const studentId = this.dataset.id;
+            const namaSiswa =
+                this.closest("tr")?.querySelector("td")?.textContent || "siswa ini";
+
+            const yakin = confirm(
+                `Nonaktifkan ${namaSiswa}?\n\nAkun siswa akan dinonaktifkan. Riwayat absensi dan tugas tetap disimpan.`
+            );
+
+            if (!yakin) {
+                return;
+            }
+
+            try {
+                await Api.deleteStudent(studentId);
+
+                showAttendancePopup(
+                    "success",
+                    "Berhasil",
+                    `${namaSiswa} berhasil dinonaktifkan.`
+                );
+
+                await renderPembimbing();
+            } catch (error) {
+                showError(error);
+            }
+        };
+    });
+
+    // Saat pilihan siswa berubah, isi tanggal PKL.
+    selectSiswaPkl.onchange = async function () {
+        const studentId = this.value;
+
+        if (!studentId) {
+            if (startPkl) startPkl.value = "";
+            if (endPkl) endPkl.value = "";
+            return;
+        }
+
+        try {
+            const student = await Api.student(studentId);
+
+            if (startPkl) {
+                startPkl.value = student.startPkl || "";
+            }
+
+            if (endPkl) {
+                endPkl.value = student.endPkl || "";
+            }
+        } catch (error) {
+            showError(error);
+        }
+    };
 }
+
+  
+  
+    // Dropdown siswa untuk pemberian tugas.
+    const selectSiswaTugas = document.getElementById("siswaTugas");
+
+    if (selectSiswaTugas) {
+      const students = await Api.students(true);
+
+      selectSiswaTugas.innerHTML = `
+        <option value="">-- Pilih Siswa --</option>
+        ${(students || []).map(student => `
+          <option value="${student.id}">
+            ${student.nama || "-"}
+          </option>
+        `).join("")}
+      `;
+    }
+
 
 
 
@@ -704,33 +876,62 @@ if (!studentId) {
   `).join("") || `<tr><td colspan="5">Belum ada absensi siswa.</td></tr>`;
   }
 
-  const tbodyLaporan = document.getElementById("tabelReviewPembimbing");
-  if (tbodyLaporan) {
-    tbodyLaporan.innerHTML = reports.map(item => {
-      // Ambil ID Laporan secara presisi
-      const reportId = item.id_laporan || item.id || item.report_id;
+  
+const tbodyLaporan = document.getElementById("tabelReviewPembimbing");
 
-      // Ambil status review
-      const status = item.status_review || item.review_status || "pending";
-      const isPending = status === "pending" || status === "menunggu_review";
-      const statusText = isPending ? "Menunggu Review" : (status === "disetujui" ? "Disetujui" : status);
+if (tbodyLaporan) {
+  tbodyLaporan.innerHTML = reports.map(item => {
+    const reportId = item.id_laporan || item.id || item.report_id;
+    const status = item.status_review || item.review_status || "pending";
+    const isPending =
+      status === "pending" || status === "menunggu_review";
 
-      // Ambil nama siswa
-      const namaSiswa = item.siswa?.nama || item.student?.nama || item.siswa?.name || `Siswa ID: ${item.id_siswa || item.student_id || "-"}`;
+    const statusText = isPending
+      ? "Menunggu Review"
+      : status === "disetujui"
+        ? "Disetujui"
+        : status === "ditolak"
+          ? "Ditolak"
+          : status;
 
-      return `
-        <tr>
-          <td>${formatDate(item.tanggal_laporan || item.report_date || item.created_at)}</td>
-          <td><strong>${namaSiswa}</strong></td>
-          <td>${item.isi_laporan || item.content || "-"}</td>
-          <td><strong>${statusText}</strong><br><small class="text-muted">${item.komentar_pembimbing || ""}</small></td>
-          <td>
-            ${isPending ? `<button class="btn btn-sm btn-success" onclick="reviewLaporan(${reportId}, 'disetujui')">Setujui</button>` : "-"}
-          </td>
-        </tr>
-      `;
-    }).join("") || `<tr><td colspan="5">Belum ada laporan.</td></tr>`;
-  }
+    const namaSiswa =
+      item.siswa?.nama ||
+      item.student?.nama ||
+      item.siswa?.name ||
+      `Siswa ID: ${item.id_siswa || item.student_id || "-"}`;
+
+    const fotoHtml = item.foto_laporan
+  ? `
+    <a
+      href="http://127.0.0.1:8000/uploads/laporan/${encodeURIComponent(item.foto_laporan)}"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      Lihat Foto
+    </a>
+  `
+  : "-";
+
+    return `
+      <tr>
+        <td>${formatDate(item.tanggal_laporan || item.report_date || item.created_at)}</td>
+        <td><strong>${namaSiswa}</strong></td>
+        <td>${item.isi_laporan || item.content || "-"}</td>
+        <td>${fotoHtml}</td>
+        <td>
+          <strong>${statusText}</strong><br>
+          <small class="text-muted">${item.komentar_pembimbing || ""}</small>
+        </td>
+        <td>
+          ${isPending
+            ? `<button class="btn btn-sm btn-success" onclick="reviewLaporan(${reportId}, 'disetujui')">Setujui</button>`
+            : "-"}
+        </td>
+      </tr>
+    `;
+  }).join("") || `<tr><td colspan="6">Belum ada laporan.</td></tr>`;
+}
+
     
 const tbodyTugasPembimbing = document.getElementById("tabelTugasPembimbing");
 
@@ -939,203 +1140,67 @@ if (!siswaId) {
     }
   });
 }
-// Page guards + initial load
+
+ // Page guards + initial load
 (async function initPage() {
   const path = window.location.pathname;
-  if (!path.includes("dashboard_siswa.html") && !path.includes("dashboard_pembimbing.html")) return;
+
+  const halamanSiswa = path.includes("dashboard_siswa.html");
+  const halamanPembimbing = path.includes("dashboard_pembimbing.html");
+  const halamanAdmin = path.includes("dashboard_admin.html");
+
+  // Jalankan hanya pada halaman dashboard
+  if (!halamanSiswa && !halamanPembimbing && !halamanAdmin) return;
+
   const user = getSessionUser();
-  if (!user) { location.href = "index.html"; return; }
+
+  if (!user) {
+    location.href = "index.html";
+    return;
+  }
+
   try {
     const serverUser = await Api.me();
+
     saveSessionUser(serverUser);
-    if (path.includes("dashboard_siswa.html") && serverUser.role !== "siswa") { location.href = "index.html"; return; }
-    if (path.includes("dashboard_pembimbing.html") && serverUser.role !== "pembimbing") { location.href = "index.html"; return; }
-    if (serverUser.role === "siswa") await renderSiswa();
-    if (serverUser.role === "pembimbing") await renderPembimbing();
-  } catch (e) { showError(e); }
+
+    // Pastikan role sesuai dengan halaman yang dibuka
+    if (halamanSiswa && serverUser.role !== "siswa") {
+      location.href = "index.html";
+      return;
+    }
+
+    if (halamanPembimbing && serverUser.role !== "pembimbing") {
+      location.href = "index.html";
+      return;
+    }
+
+    if (halamanAdmin && serverUser.role !== "admin") {
+      location.href = "index.html";
+      return;
+    }
+
+    // Muat data sesuai dashboard
+    if (serverUser.role === "siswa") {
+      await renderSiswa();
+    }
+
+    if (serverUser.role === "pembimbing") {
+  await renderPembimbing();
+}
+
+if (serverUser.role === "admin") {
+  await renderAdmin();
+}
+
+    // Dashboard admin akan kita sambungkan berikutnya
+  } catch (e) {
+    showError(e);
+  }
 })();
 
-// ============================================================
-// ADMIN DASHBOARD - CRUD MASTER KE SQL SERVER VIA API
-// ============================================================
 
-async function loadAdmin() {
-  const user = getSessionUser();
-  if (!user || user.role !== "admin") { location.href = "index.html"; return; }
-  const name = document.getElementById("userNama"); if (name) name.textContent = user.full_name || "Administrator";
-  const [students, supervisors, locations, att] = await Promise.all([
-    Api.students(false), Api.supervisors(false), Api.locations(false), Api.attendances({ page: 1, page_size: 100 })
-  ]);
-  window.adminCache = { students, supervisors, locations };
-  renderAdminStudents(students); renderAdminSupervisors(supervisors); renderAdminLocations(locations); renderAdminAttendances(att.items);
-}
 
-function renderAdminStudents(items) {
-  const el = document.getElementById("adminStudents"); if (!el) return;
-  el.innerHTML = items.map(x => `<tr><td>${x.id}</td><td>${x.nis}</td><td>${x.name}</td><td>${x.class_name || "-"}</td><td>${x.is_active ? "Ya" : "Tidak"}</td><td><button class="btn btn-sm btn-primary" onclick="editStudent(${x.id})">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteStudentAdmin(${x.id})">Nonaktifkan</button></td></tr>`).join("");
-}
-function renderAdminSupervisors(items) {
-  const el = document.getElementById("adminSupervisors"); if (!el) return;
-  el.innerHTML = items.map(x => `<tr><td>${x.id}</td><td>${x.employee_number}</td><td>${x.name}</td><td>${x.email || "-"}</td><td>${x.phone || "-"}</td><td>${x.is_active ? "Ya" : "Tidak"}</td><td><button class="btn btn-sm btn-primary" onclick="editSupervisor(${x.id})">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteSupervisorAdmin(${x.id})">Nonaktifkan</button></td></tr>`).join("");
-}
-function renderAdminLocations(items) {
-  const el = document.getElementById("adminLocations"); if (!el) return;
-  el.innerHTML = items.map(x => `<tr><td>${x.id}</td><td>${x.nama || x.name}</td><td>${x.latitude}</td><td>${x.longitude}</td><td>${x.radius_meter || x.radius_meters || 100}</td><td>${(x.is_aktif == 1 || x.is_active) ? "Ya" : "Tidak"}</td><td><button class="btn btn-sm btn-primary" onclick="editLocation(${x.id})">Edit</button> <button class="btn btn-sm btn-danger" onclick="deleteLocationAdmin(${x.id})">Nonaktifkan</button></td></tr>`).join("");
-}
-function renderAdminAttendances(items) {
-  const el = document.getElementById("adminAttendances"); if (!el) return;
-  el.innerHTML = items.map(x => `<tr><td>${x.id}</td><td>${x.student_id}</td><td>${x.attendance_type}</td><td>${formatTime(x.attendance_time)}</td><td>${displayStatus(x.status)}</td><td>${x.ip_address || "-"}</td><td><button class="btn btn-sm btn-danger" onclick="deleteAttendanceAdmin(${x.id})">Hapus</button></td></tr>`).join("") || `<tr><td colspan="7">Belum ada data.</td></tr>`;
-}
-
-window.editStudent = function(id) { 
-  const x = adminCache.students.find(v => v.id === id); 
-  if (!x) return; 
-  document.getElementById("studentId").value = x.id; 
-  document.getElementById("studentNis").value = x.nis; 
-  document.getElementById("studentName").value = x.name; 
-  document.getElementById("studentClass").value = x.class_name || ""; 
-  document.getElementById("studentActive").value = String(x.is_active); 
-  document.getElementById("startPkl").value = x.startPkl || "";
-  document.getElementById("endPkl").value = x.endPkl || "";
-};
-
-window.resetStudentForm = function(){ 
-  document.getElementById("formStudent")?.reset(); 
-  document.getElementById("studentId").value = ""; 
-};
-
-window.editSupervisor = function(id) { 
-  const x = adminCache.supervisors.find(v => v.id === id); 
-  if (!x) return; 
-  document.getElementById("supervisorId").value = x.id; 
-  document.getElementById("supervisorNumber").value = x.employee_number; 
-  document.getElementById("supervisorName").value = x.name; 
-  document.getElementById("supervisorEmail").value = x.email || ""; 
-  document.getElementById("supervisorPhone").value = x.phone || ""; 
-  document.getElementById("supervisorActive").value = String(x.is_active); 
-};
-
-window.resetSupervisorForm = function(){ 
-  document.getElementById("formSupervisor")?.reset(); 
-  document.getElementById("supervisorId").value = ""; 
-};
-
-window.editLocation = function(id) { 
-  const x = adminCache.locations.find(v => v.id === id); 
-  if (!x) return; 
-  document.getElementById("locationId").value = x.id; 
-  document.getElementById("locationName").value = x.nama || x.name; 
-  document.getElementById("locationLat").value = x.latitude; 
-  document.getElementById("locationLng").value = x.longitude; 
-  document.getElementById("locationRadius").value = x.radius_meter || x.radius_meters || 100; 
-  document.getElementById("locationActive").value = String(x.is_aktif == 1 || x.is_active); 
-};
-
-window.resetLocationForm = function(){ 
-  document.getElementById("formLocation")?.reset(); 
-  document.getElementById("locationId").value = ""; 
-};
-
-window.deleteStudentAdmin = async function(id){ 
-  if(!confirm("Nonaktifkan siswa ini?")) return; 
-  try { await Api.deleteStudent(id); await loadAdmin(); } catch(e) { showError(e); } 
-};
-
-window.deleteSupervisorAdmin = async function(id){ 
-  if(!confirm("Nonaktifkan pembimbing ini?")) return; 
-  try { await Api.deleteSupervisor(id); } catch(e) { showError(e); } finally { await loadAdmin(); } 
-};
-
-window.deleteLocationAdmin = async function(id){ 
-  if(!confirm("Nonaktifkan lokasi ini?")) return; 
-  try { await Api.deleteLocation(id); } catch(e) { showError(e); } finally { await loadAdmin(); } 
-};
-
-window.deleteAttendanceAdmin = async function(id){ 
-  if(!confirm("Hapus absensi ini dari database?")) return; 
-  try { await Api.deleteAttendance(id); await loadAdmin(); } catch(e) { showError(e); } 
-};
-
-// Form Student Admin
-const formStudent = document.getElementById("formStudent");
-if (formStudent) {
-  formStudent.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    try {
-      const id = document.getElementById("studentId").value;
-      const payload = {
-        nis: document.getElementById("studentNis").value.trim(),
-        name: document.getElementById("studentName").value.trim(),
-        class_name: document.getElementById("studentClass").value.trim() || null,
-        is_active: document.getElementById("studentActive").value === "true"
-      };
-      if (id) await Api.updateStudent(id, payload);
-      else await Api.createStudent(payload);
-      
-      alert("Data siswa tersimpan di database.");
-      resetStudentForm();
-      await loadAdmin();
-    } catch (e) {
-      showError(e);
-    }
-  });
-}
-
-// Form Supervisor Admin
-const formSupervisor = document.getElementById("formSupervisor");
-if (formSupervisor) {
-  formSupervisor.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    try {
-      const id = document.getElementById("supervisorId").value;
-      const payload = {
-        employee_number: document.getElementById("supervisorNumber").value.trim(),
-        name: document.getElementById("supervisorName").value.trim(),
-        email: document.getElementById("supervisorEmail").value.trim() || null,
-        phone: document.getElementById("supervisorPhone").value.trim() || null,
-        is_active: document.getElementById("supervisorActive").value === "true"
-      };
-      if (id) await Api.updateSupervisor(id, payload);
-      else await Api.createSupervisor(payload);
-      
-      alert("Data pembimbing tersimpan di database.");
-      resetSupervisorForm();
-      await loadAdmin();
-    } catch (e) {
-      showError(e);
-    }
-  });
-}
-
-// Form Location Admin
-const formLocation = document.getElementById("formLocation");
-if (formLocation) {
-  formLocation.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    try {
-      const id = document.getElementById("locationId").value;
-      const payload = {
-        name: document.getElementById("locationName").value.trim(),
-        latitude: Number(document.getElementById("locationLat").value),
-        longitude: Number(document.getElementById("locationLng").value),
-        radius_meters: Number(document.getElementById("locationRadius").value),
-        is_active: document.getElementById("locationActive").value === "true"
-      };
-      if (id) await Api.updateLocation(id, payload);
-      else await Api.createLocation(payload);
-      
-      alert("Lokasi tersimpan di database.");
-      resetLocationForm();
-      await loadAdmin();
-    } catch (e) {
-      showError(e);
-    }
-  });
-}
-
-if (window.location.pathname.includes("dashboard_admin.html")) {
-  (async()=>{ try { await Api.me(); await loadAdmin(); } catch(e){showError(e);} })();
-}
 
 // Fungsi penanganan logout langsung
 function handleLogout(e) {
@@ -1152,3 +1217,517 @@ document.addEventListener("click", (e) => {
     handleLogout(e);
   }
 });
+
+
+function adminEscape(value) {
+  const element = document.createElement("span");
+  element.textContent = String(value ?? "-");
+  return element.innerHTML;
+}
+
+
+
+
+function tampilkanDataSiswaAdmin(siswa) {
+  const tbody = document.getElementById("tabelDataSiswa");
+  if (!tbody) return;
+
+  tbody.innerHTML = siswa.map((item, index) => `
+    <tr>
+      <td>${index + 1}</td>
+      <td>${adminEscape(item.nama || "-")}</td>
+      <td>${adminEscape(item.nis || "-")}</td>
+      <td>${adminEscape(item.kelas || "-")}</td>
+    </tr>
+  `).join("") || `
+    <tr><td colspan="4">Belum ada data siswa.</td></tr>
+  `;
+}
+
+function tampilkanDataPembimbingAdmin(pembimbing) {
+  const tbody = document.getElementById("tabelDataPembimbing");
+  if (!tbody) return;
+
+  tbody.innerHTML = pembimbing.map((item, index) => `
+    <tr>
+      <td>${index + 1}</td>
+      <td>${adminEscape(item.nama || "-")}</td>
+      <td>${adminEscape(item.asal_daerah || "-")}</td>
+      <td>${adminEscape(item.nomer_telepon || "-")}</td>
+    </tr>
+  `).join("") || `
+    <tr><td colspan="4">Belum ada data pembimbing.</td></tr>
+  `;
+}
+
+
+
+async function renderAdmin() {
+  const user = getSessionUser();
+
+  const namaAdmin = document.getElementById("adminNama");
+const namaAdminDashboard = document.getElementById("adminNamaDashboard");
+
+if (namaAdmin) {
+  namaAdmin.textContent = user?.full_name || "Admin";
+}
+
+if (namaAdminDashboard) {
+  namaAdminDashboard.textContent = user?.full_name || "Admin";
+}
+  const [
+    students,
+    supervisors,
+    tasks
+  ] = await Promise.all([
+    Api.students(false),
+    Api.supervisors(false),
+    Api.tasks()
+  ]);
+
+  const daftarSiswa = Array.isArray(students) ? students : [];
+  const daftarPembimbing = Array.isArray(supervisors) ? supervisors : [];
+  const daftarTugas = Array.isArray(tasks) ? tasks : [];
+
+  console.log("DATA TUGAS ADMIN:", tasks);
+  console.log("JUMLAH TUGAS:", daftarTugas.length);
+  console.log("STATUS TUGAS:", daftarTugas.map(tugas => ({
+  id: tugas.id,
+  judul: tugas.judul_tugas || tugas.title,
+  status: tugas.status_progress
+})));
+
+  const totalSiswa = document.getElementById("totalSiswa");
+  const totalPembimbing = document.getElementById("totalPembimbing");
+  const totalTugas = document.getElementById("totalTugas");
+  const tugasSelesai = document.getElementById("tugasSelesai");
+
+  if (totalSiswa) totalSiswa.textContent = daftarSiswa.length;
+  if (totalPembimbing) totalPembimbing.textContent = daftarPembimbing.length;
+  if (totalTugas) totalTugas.textContent = daftarTugas.length;
+
+  if (tugasSelesai) {
+    tugasSelesai.textContent = daftarTugas.filter(
+      tugas => tugas.status_progress === "selesai"
+    ).length;
+  }
+
+   // Simpan data agar bisa dipakai untuk rekap admin
+  window.dataAdmin = {
+    students: daftarSiswa,
+    supervisors: daftarPembimbing,
+    tasks: daftarTugas
+  };
+
+     tampilkanDataSiswaAdmin(daftarSiswa);
+  tampilkanDataPembimbingAdmin(daftarPembimbing);
+  renderRekapAdmin();
+  await renderRekapAbsensiAdmin();
+
+}
+
+
+async function renderRekapAbsensiAdmin() {
+  const tbody = document.getElementById("tabelRekapAbsensi");
+  if (!tbody) return;
+
+  tbody.innerHTML =
+    `<tr><td colspan="6">Memuat data absensi...</td></tr>`;
+
+  try {
+    const hasil = await Api.attendances({
+      page: 1,
+      page_size: 100
+    });
+
+    const daftarAbsensi = Array.isArray(hasil?.items)
+      ? hasil.items
+      : Array.isArray(hasil)
+        ? hasil
+        : [];
+
+    const daftarSiswa = await Api.students(false);
+    const siswa = Array.isArray(daftarSiswa) ? daftarSiswa : [];
+
+    const grup = {};
+
+    daftarAbsensi.forEach(item => {
+      const idSiswa = Number(item.student_id);
+      const tanggal = item.attendance_date;
+      const kunci = `${idSiswa}-${tanggal}`;
+
+      const dataSiswa = siswa.find(
+        s => Number(s.id) === idSiswa
+      );
+
+      if (!grup[kunci]) {
+        grup[kunci] = {
+          nama:
+            item.student?.nama ||
+            item.student?.name ||
+            dataSiswa?.nama ||
+            dataSiswa?.name ||
+            `Siswa ID: ${idSiswa}`,
+          tanggal,
+          masuk: null,
+          keluar: null,
+          status: item.status
+        };
+      }
+
+      if (item.attendance_type === "masuk") {
+        grup[kunci].masuk = item;
+        grup[kunci].status = item.status;
+      }
+
+      if (item.attendance_type === "keluar") {
+        grup[kunci].keluar = item;
+      }
+    });
+
+    const rekap = Object.values(grup).sort((a, b) =>
+      String(b.tanggal || "").localeCompare(String(a.tanggal || ""))
+    );
+
+    tbody.innerHTML = rekap.map((item, index) => `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${adminEscape(item.nama)}</td>
+        <td>${adminEscape(formatDate(item.tanggal))}</td>
+        <td>${adminEscape(
+          item.masuk
+            ? formatTime(item.masuk.attendance_time)
+            : "-"
+        )}</td>
+        <td>${adminEscape(
+          item.keluar
+            ? formatTime(item.keluar.attendance_time)
+            : "-"
+        )}</td>
+        <td>${adminEscape(displayStatus(item.status))}</td>
+      </tr>
+    `).join("") || `
+      <tr>
+        <td colspan="6">Belum ada data absensi.</td>
+      </tr>
+    `;
+
+    console.log("REKAP ABSENSI ADMIN:", rekap);
+
+  } catch (error) {
+    console.error("Gagal memuat rekap absensi admin:", error);
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6">
+          Gagal memuat data absensi. Periksa Console.
+        </td>
+      </tr>
+    `;
+  }
+}
+
+
+function renderRekapAdmin() {
+  const data = window.dataAdmin || {};
+  const semuaTugas = data.tasks || [];
+  const siswa = data.students || [];
+
+  const periode = document.getElementById("periodeRekap")?.value || "semua";
+  const tanggalMulai = document.getElementById("tanggalMulaiRekap")?.value || "";
+  const tanggalAkhir = document.getElementById("tanggalAkhirRekap")?.value || "";
+
+  const sekarang = new Date();
+  sekarang.setHours(0, 0, 0, 0);
+
+  // Tentukan tanggal yang digunakan untuk filter tugas
+  function tanggalTugas(tugas) {
+    const nilai =
+      tugas.startTugas ||
+      tugas.tanggal_mulai ||
+      tugas.created_at ||
+      tugas.tanggal_dibuat ||
+      tugas.deadline;
+
+    if (!nilai) return null;
+
+    const tanggal = new Date(nilai);
+    if (Number.isNaN(tanggal.getTime())) return null;
+
+    tanggal.setHours(0, 0, 0, 0);
+    return tanggal;
+  }
+
+  const awalMinggu = new Date(sekarang);
+  const hari = awalMinggu.getDay();
+  awalMinggu.setDate(awalMinggu.getDate() - (hari === 0 ? 6 : hari - 1));
+
+  const awalBulan = new Date(
+    sekarang.getFullYear(),
+    sekarang.getMonth(),
+    1
+  );
+
+  const tugasTerfilter = semuaTugas.filter(tugas => {
+    const tanggal = tanggalTugas(tugas);
+
+    // Filter hari, minggu, atau bulan
+    if (periode !== "semua") {
+      if (!tanggal) return false;
+
+      if (periode === "hari" && tanggal.getTime() !== sekarang.getTime()) {
+        return false;
+      }
+
+      if (periode === "minggu" && tanggal < awalMinggu) {
+        return false;
+      }
+
+      if (periode === "bulan" && tanggal < awalBulan) {
+        return false;
+      }
+    }
+
+    // Filter tambahan tanggal mulai dan akhir
+    if (tanggalMulai) {
+      const mulai = new Date(tanggalMulai + "T00:00:00");
+      if (!tanggal || tanggal < mulai) return false;
+    }
+
+    if (tanggalAkhir) {
+      const akhir = new Date(tanggalAkhir + "T00:00:00");
+      if (!tanggal || tanggal > akhir) return false;
+    }
+
+    return true;
+  });
+
+  function tanggalID(nilai) {
+    if (!nilai) return "-";
+
+    const tanggal = new Date(nilai);
+    return Number.isNaN(tanggal.getTime())
+      ? "-"
+      : tanggal.toLocaleDateString("id-ID");
+  }
+
+  function aman(nilai) {
+    const elemen = document.createElement("span");
+    elemen.textContent = String(nilai ?? "-");
+    return elemen.innerHTML;
+  }
+
+  function statusTugas(tugas) {
+    const status = String(tugas.status_progress || "pending").toLowerCase();
+
+    if (status === "selesai") return "selesai";
+    if (status === "proses") return "proses";
+    return "pending";
+  }
+
+  function namaSiswa(tugas) {
+    const idSiswa = Number(tugas.id_siswa ?? tugas.student_id);
+    const siswaTerkait = siswa.find(item => Number(item.id) === idSiswa);
+
+    return (
+      tugas.siswa?.nama ||
+      tugas.student?.nama ||
+      siswaTerkait?.nama ||
+      "-"
+    );
+  }
+
+  console.log("SEMUA TUGAS:", semuaTugas.length);
+  console.log("TUGAS SETELAH FILTER:", tugasTerfilter.length);
+  console.log("PERIODE DIPILIH:", periode);
+  console.log("STATUS TUGAS TERFILTER:", tugasTerfilter.map(tugas => ({
+  judul: tugas.judul_tugas || tugas.title,
+  status: tugas.status_progress,
+  tanggal: tanggalTugas(tugas)
+})));
+
+  const jumlahPending = semuaTugas.filter(
+  tugas => statusTugas(tugas) === "pending"
+).length;
+
+const jumlahProses = semuaTugas.filter(
+  tugas => statusTugas(tugas) === "proses"
+).length;
+
+const jumlahSelesai = semuaTugas.filter(
+  tugas => statusTugas(tugas) === "selesai"
+).length;
+
+  console.log("JUMLAH TUGAS SELESAI:", jumlahSelesai);
+console.log(
+  "STATUS SEMUA TUGAS:",
+  tugasTerfilter.map(tugas => ({
+    id: tugas.id,
+    judul: tugas.judul_tugas || tugas.title,
+    status: tugas.status_progress
+  }))
+);
+
+  const elPending = document.getElementById("jumlahPending");
+  const elProses = document.getElementById("jumlahProses");
+  const elSelesai = document.getElementById("jumlahSelesai");
+
+  if (elPending) elPending.textContent = jumlahPending;
+  if (elProses) elProses.textContent = jumlahProses;
+  if (elSelesai) elSelesai.textContent = jumlahSelesai;
+
+  const tabelRekap = document.getElementById("tabelRekapTugas");
+
+  if (tabelRekap) {
+    tabelRekap.innerHTML = tugasTerfilter.map((tugas, index) => `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${aman(namaSiswa(tugas))}</td>
+        <td>${aman(tugas.judul_tugas || tugas.title || "-")}</td>
+        <td>${aman(tanggalID(tugas.startTugas || tugas.tanggal_mulai))}</td>
+        <td>${aman(tanggalID(tugas.deadline))}</td>
+        <td>${aman(
+          statusTugas(tugas) === "selesai"
+            ? "Selesai"
+            : statusTugas(tugas) === "proses"
+              ? "Sedang Dikerjakan"
+              : "Belum Mulai"
+        )}</td>
+      </tr>
+    `).join("") || `
+      <tr>
+        <td colspan="6">Tidak ada tugas pada periode ini.</td>
+      </tr>
+    `;
+  }
+
+  const tabelStatus = document.getElementById("tabelStatusTugas");
+
+  if (tabelStatus) {
+    const daftarStatus = [
+      ["Belum Mulai", jumlahPending],
+      ["Sedang Dikerjakan", jumlahProses],
+      ["Selesai", jumlahSelesai]
+    ];
+
+    tabelStatus.innerHTML = daftarStatus.map(item => `
+      <tr>
+        <td>${aman(item[0])}</td>
+        <td>${item[1]}</td>
+      </tr>
+    `).join("");
+  }
+}
+
+// Tombol untuk menampilkan rekap tugas
+document.getElementById("btnTampilkanRekap")
+  ?.addEventListener("click", renderRekapAdmin);
+
+// Perbarui rekap ketika periode berubah
+document.getElementById("periodeRekap")
+  ?.addEventListener("change", renderRekapAdmin);
+
+// Perbarui rekap ketika tanggal berubah
+document.getElementById("tanggalMulaiRekap")
+  ?.addEventListener("change", renderRekapAdmin);
+
+document.getElementById("tanggalAkhirRekap")
+  ?.addEventListener("change", renderRekapAdmin);
+
+  
+/* Navigasi sidebar dashboard admin */
+function bukaHalamanAdmin(namaHalaman) {
+  const semuaHalaman = document.querySelectorAll(".admin-halaman");
+  const semuaMenu = document.querySelectorAll(".sidebar-link");
+
+  // Sembunyikan semua halaman
+  semuaHalaman.forEach(halaman => {
+    halaman.hidden = true;
+  });
+
+  // Hilangkan status aktif dari semua menu
+  semuaMenu.forEach(menu => {
+    menu.classList.remove("active");
+  });
+
+  // Tampilkan halaman yang dipilih
+  const halamanDipilih = document.getElementById(
+    `halaman-${namaHalaman}`
+  );
+
+  if (halamanDipilih) {
+    halamanDipilih.hidden = false;
+  }
+
+  // Tandai menu yang sedang aktif
+  const menuDipilih = document.querySelector(
+    `.sidebar-link[data-halaman="${namaHalaman}"]`
+  );
+
+  if (menuDipilih) {
+    menuDipilih.classList.add("active");
+  }
+
+  // Ubah judul bagian atas
+  const judul = document.getElementById("judulHalaman");
+
+  const daftarJudul = {
+    dashboard: "Dashboard Admin",
+    "rekap-absensi": "Rekap Absensi",
+    "data-siswa": "Data Siswa",
+    "data-pembimbing": "Data Pembimbing",
+    "rekap-tugas": "Rekap Tugas"
+  };
+
+  if (judul) {
+    judul.textContent = daftarJudul[namaHalaman] || "Dashboard Admin";
+  }
+}
+
+// Aktifkan fungsi klik menu sidebar
+document.querySelectorAll(".sidebar-link").forEach(menu => {
+  menu.addEventListener("click", () => {
+    bukaHalamanAdmin(menu.dataset.halaman);
+  });
+});
+
+// Tampilkan dashboard saat halaman pertama kali dibuka
+if (document.querySelector(".admin-sidebar")) {
+  bukaHalamanAdmin("dashboard");
+}
+
+/* Jam dan tanggal realtime khusus dashboard admin */
+function jalankanJamAdmin() {
+  const elemenJam = document.getElementById("clock-time");
+  const elemenTanggal = document.getElementById("clock-date");
+
+  // Berhenti jika bukan halaman admin
+  if (!elemenJam || !elemenTanggal) return;
+
+  function perbaruiJam() {
+    const sekarang = new Date();
+
+    elemenJam.textContent =
+      sekarang.toLocaleTimeString("id-ID", {
+        timeZone: "Asia/Jakarta",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+      }) + " WIB";
+
+    elemenTanggal.textContent =
+      sekarang.toLocaleDateString("id-ID", {
+        timeZone: "Asia/Jakarta",
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      });
+  }
+
+  perbaruiJam();
+  setInterval(perbaruiJam, 1000);
+}
+
+jalankanJamAdmin();

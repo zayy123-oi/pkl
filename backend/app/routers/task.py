@@ -1,3 +1,4 @@
+
 from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import select
@@ -15,32 +16,16 @@ def create_task(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-    # VALIDASI DEADLINE
-    if payload.deadline is not None:
-        now = datetime.now(timezone(timedelta(hours=7))).replace(tzinfo=None)
-
-        deadline = payload.deadline
-        if deadline.tzinfo is not None:
-            deadline = deadline.astimezone(
-                timezone(timedelta(hours=7))
-            ).replace(tzinfo=None)
-
-        if deadline < now:
-            raise HTTPException(
-                status_code=400,
-                detail="Deadline tidak boleh menggunakan tanggal atau waktu yang sudah lewat."
-            )
-
     task = Task(
-    id_siswa=payload.id_siswa,
-    id_pembimbing=current_user.supervisor_id,
-    judul_tugas=payload.judul_tugas,
-    deskripsi_tugas=payload.deskripsi_tugas,
-    startTugas=payload.startTugas,
-    deadline=payload.deadline,
-    status="belum",
-    status_progress="pending"
-)
+        id_siswa=payload.id_siswa,
+        id_pembimbing=current_user.supervisor_id,
+        judul_tugas=payload.judul_tugas,
+        deskripsi_tugas=payload.deskripsi_tugas,
+        startTugas=payload.startTugas,
+        deadline=payload.deadline,
+        status="belum",
+        status_progress="pending"
+    )
 
     db.add(task)
     db.commit()
@@ -65,10 +50,19 @@ def list_tasks(
     return list(db.scalars(stmt).all())
 
 @router.get("/{task_id}", response_model=TaskOut)
-def get_task(task_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def get_task(
+    task_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
     task = db.get(Task, task_id)
+
     if not task:
-        raise HTTPException(status_code=404, detail="Tugas tidak ditemukan")
+        raise HTTPException(
+            status_code=404,
+            detail="Tugas tidak ditemukan"
+        )
+
     return task
 
 @router.patch("/{task_id}", response_model=TaskOut)
@@ -120,8 +114,9 @@ def update_task(
 
         # Saat tugas mulai dikerjakan
         if new_progress == "proses" and task.startTugas is None:
-          wib = timezone(timedelta(hours=7))
-          task.startTugas = datetime.now(wib).replace(tzinfo=None)
+            wib = timezone(timedelta(hours=7))
+            task.startTugas = datetime.now(wib).replace(tzinfo=None)
+
     # Terapkan perubahan
     for key, value in updates.items():
         setattr(task, key, value)
@@ -132,10 +127,20 @@ def update_task(
     return task
 
 @router.delete("/{task_id}")
-def delete_task(task_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+def delete_task(
+    task_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
     task = db.get(Task, task_id)
+
     if not task:
-        raise HTTPException(status_code=404, detail="Tugas tidak ditemukan")
+        raise HTTPException(
+            status_code=404,
+            detail="Tugas tidak ditemukan"
+        )
+
     db.delete(task)
     db.commit()
+
     return {"message": "Tugas berhasil dihapus", "id": task_id}
