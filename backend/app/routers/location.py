@@ -29,11 +29,11 @@ def list_locations(
     stmt = select(Location).order_by(Location.nama)
 
     if active_only is True:
-        stmt = stmt.where(Location.is_aktif == 1)
+        stmt = stmt.where(Location.is_aktif.is_(True))
     elif active_only is False:
-        stmt = stmt.where(Location.is_aktif == 0)
+        stmt = stmt.where(Location.is_aktif.is_(False))
     else:
-        stmt = stmt.where(Location.is_aktif == 1)
+        stmt = stmt.where(Location.is_aktif.is_(True))
 
     return list(db.scalars(stmt).all())
 
@@ -63,6 +63,6 @@ def delete_location(location_id: int, db: Session = Depends(get_db)):
     location = db.get(Location, location_id)
     if not location:
         raise HTTPException(status_code=404, detail="Lokasi absensi tidak ditemukan")
-    location.is_active = False
+    location.is_aktif = False
     db.commit()
     return {"message": "Lokasi dinonaktifkan", "id": location_id}
