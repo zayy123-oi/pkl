@@ -5,7 +5,9 @@ from fastapi import APIRouter, HTTPException, Depends, UploadFile,File, Form
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
-from app.models import Report, User
+from app.models import Report, User, Student
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from app.schemas import ReportCreate, ReportOut, ReportUpdate
 from app.security import get_current_user
 
@@ -29,6 +31,15 @@ def create_report(payload: ReportCreate, db: Session = Depends(get_db), current_
     db.commit()
     db.refresh(report)
     return report
+
+def check_student_pkl_period(student: Student):
+    today = datetime.now(ZoneInfo("Asia/Jakarta")).date()
+
+    if student.endPkl and today > student.endPkl:
+        raise HTTPException(
+            status_code=403,
+            detail="Periode PKL kamu sudah berakhir. Pengiriman laporan tidak dapat dilakukan."
+        )
 
 @router.post("/upload", response_model=ReportOut, status_code=201)
 async def create_report_with_photo(
@@ -54,6 +65,16 @@ async def create_report_with_photo(
             status_code=403,
             detail="Anda hanya dapat membuat laporan untuk akun sendiri."
         )
+
+    student = db.get(Student, int(student_id))
+
+    if not student:
+     raise HTTPException(
+        status_code=404,
+        detail="Data siswa tidak ditemukan."
+    )
+
+    check_student_pkl_period(student)
 
     isi_laporan = isi_laporan.strip()
     if not isi_laporan:

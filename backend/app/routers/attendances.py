@@ -1,6 +1,7 @@
 
 import math
 from datetime import datetime, timezone, timedelta, date
+from zoneinfo import ZoneInfo
 from app.config import settings
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import func, select
@@ -41,6 +42,15 @@ def get_student(db: Session, student_id: int) -> Student:
     if not student:
         raise HTTPException(404, "siswa tidak ditemukan")
     return student
+
+def check_student_pkl_period(student: Student):
+    today = datetime.now(ZoneInfo("Asia/Jakarta")).date()
+
+    if student.endPkl and today > student.endPkl:
+        raise HTTPException(
+            status_code=403,
+            detail="Periode PKL kamu sudah berakhir. Fitur absensi tidak dapat digunakan."
+        )
 
 
 def get_mentor(db: Session, supervisor_id: int) -> Mentor:
@@ -203,6 +213,9 @@ def create_attendance(
         )
 
     student = get_student(db, payload.student_id)
+
+    if current_user.role == "siswa":
+     check_student_pkl_period(student)
     get_mentor(db, payload.supervisor_id)
     location = get_location(db, payload.location_id) if payload.location_id else None
 

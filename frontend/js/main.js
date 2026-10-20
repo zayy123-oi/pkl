@@ -261,6 +261,51 @@ async function renderSiswa() {
   const student = await Api.student(user.student_id);
   console.log("DATA SISWA:", student);
 
+  const tanggalHariIni = new Date(
+  new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jakarta",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(new Date())
+);
+
+const tanggalSelesaiPKL = student.endPkl
+  ? new Date(student.endPkl + "T00:00:00")
+  : null;
+
+const pklSudahSelesai =
+  tanggalSelesaiPKL !== null &&
+  tanggalHariIni > tanggalSelesaiPKL;
+
+if (pklSudahSelesai) {
+  // Nonaktifkan tombol absensi
+  document.querySelectorAll(".absen-actions button").forEach(button => {
+    button.disabled = true;
+  });
+
+  // Nonaktifkan form absensi
+  document.querySelectorAll("#formAbsensi input, #formAbsensi select").forEach(input => {
+    input.disabled = true;
+  });
+
+  // Nonaktifkan form laporan
+  document.querySelectorAll("#formLaporan input, #formLaporan textarea, #formLaporan button").forEach(input => {
+    input.disabled = true;
+  });
+
+  // Tampilkan pemberitahuan
+  const pemberitahuan = document.createElement("div");
+  pemberitahuan.className = "periode-warning";
+  pemberitahuan.textContent =
+    "Periode PKL kamu sudah berakhir. Fitur absensi dan pengiriman laporan dinonaktifkan.";
+
+  const menuAbsensi = document.getElementById("formAbsensi");
+  if (menuAbsensi) {
+    menuAbsensi.parentElement.prepend(pemberitahuan);
+  }
+}
+
   const startPkl = document.getElementById("startPkl");
   const endPkl = document.getElementById("endPkl");
 
@@ -288,6 +333,52 @@ if (statusPeriode && student.startPkl && student.endPkl) {
     statusPeriode.className = "periode-status berjalan";
   }
 }
+
+
+  
+  // Notifikasi pengingat menjelang PKL berakhir
+  const notifikasiPkl = document.getElementById("notifikasiPeriodePkl");
+  const judulNotifikasiPkl = document.getElementById("judulNotifikasiPkl");
+  const pesanNotifikasiPkl = document.getElementById("pesanNotifikasiPkl");
+
+  if (notifikasiPkl && judulNotifikasiPkl && pesanNotifikasiPkl) {
+    notifikasiPkl.style.display = "none";
+
+    if (student.endPkl) {
+      const bagianTanggal = String(student.endPkl).slice(0, 10).split("-");
+      const selesai = new Date(
+        Number(bagianTanggal[0]),
+        Number(bagianTanggal[1]) - 1,
+        Number(bagianTanggal[2])
+      );
+
+      const sekarang = new Date();
+      sekarang.setHours(0, 0, 0, 0);
+
+      const selisihHari = Math.round(
+        (selesai.getTime() - sekarang.getTime()) / 86400000
+      );
+
+      if (selisihHari === 2) {
+        judulNotifikasiPkl.textContent = "Pengingat: H-2 PKL Berakhir";
+        pesanNotifikasiPkl.textContent =
+          "PKL kamu akan berakhir 2 hari lagi. Selesaikan tugas dan laporan yang masih tertunda.";
+        notifikasiPkl.style.display = "flex";
+      } else if (selisihHari === 1) {
+        judulNotifikasiPkl.textContent = "Pengingat: Besok PKL Berakhir";
+        pesanNotifikasiPkl.textContent =
+          "PKL kamu berakhir besok. Pastikan tugas, laporan, dan persyaratan PKL sudah diselesaikan.";
+        notifikasiPkl.style.display = "flex";
+      } else if (selisihHari === 0) {
+        judulNotifikasiPkl.textContent = "Hari Terakhir PKL";
+        pesanNotifikasiPkl.textContent =
+          "Hari ini adalah hari terakhir PKL kamu. Pastikan semua kegiatan dan laporan sudah diselesaikan.";
+        notifikasiPkl.style.display = "flex";
+      }
+    }
+  }
+
+
 
   const [attPage, reports, tasks] = await Promise.all([
     Api.attendances({ page: 1, page_size: 100 }),
@@ -437,7 +528,7 @@ if (progress !== "selesai" && item.deadline) {
 <select
     class="status-progress status-${progress}"
     onchange="ubahProgressTugas(${item.id}, this.value)"
-    ${progress === "selesai" ? "disabled" : ""}
+    ${pklSudahSelesai || progress === "selesai" ? "disabled" : ""}
 >
     <option value="pending"
         ${progress === "pending" ? "selected" : ""}
@@ -1388,113 +1479,656 @@ if (namaAdminDashboard) {
     tasks: daftarTugas
   };
 
-     tampilkanDataSiswaAdmin(daftarSiswa);
-  tampilkanDataPembimbingAdmin(daftarPembimbing);
-  renderRekapAdmin();
-  await renderRekapAbsensiAdmin();
-
+    tampilkanDataSiswaAdmin(daftarSiswa);
+tampilkanDataPembimbingAdmin(daftarPembimbing);
+renderRekapAdmin();
+await renderRekapAbsensiAdmin();
+await renderSertifikatAdmin();
 }
 
 
+
 async function renderRekapAbsensiAdmin() {
-  const tbody = document.getElementById("tabelRekapAbsensi");
-  if (!tbody) return;
+    const tbody = document.getElementById("tabelRekapAbsensi");
+    if (!tbody) return;
 
-  tbody.innerHTML =
-    `<tr><td colspan="6">Memuat data absensi...</td></tr>`;
+    const filterPeriode = document.getElementById("filterPeriodeAbsensi");
+    const filterBulan = document.getElementById("filterBulanAbsensi");
+    const filterNama = document.getElementById("filterNamaAbsensi");
 
-  try {
+    const periode = filterPeriode?.value || "semua";
+    const bulanDipilih = filterBulan?.value || "";
+    const namaDipilih = filterNama?.value || "semua";
+
+    if (filterBulan) {
+        filterBulan.disabled = periode !== "bulan";
+    }
+
+    if (periode === "bulan" && !bulanDipilih) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6">Pilih bulan terlebih dahulu.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="6">Memuat data absensi...</td>
+        </tr>
+    `;
+
+    try {
+        const [daftarAbsensi, daftarSiswaRaw] = await Promise.all([
+            ambilSemuaAbsensi(),
+            Api.students(false)
+        ]);
+
+        const daftarSiswa = Array.isArray(daftarSiswaRaw)
+            ? daftarSiswaRaw
+            : [];
+
+        // Isi pilihan nama siswa.
+        if (filterNama) {
+            const pilihanLama = filterNama.value;
+            const pilihanSiswa = daftarSiswa
+                .map(siswa => ({
+                    id: String(siswa.id),
+                    nama: siswa.nama || siswa.name || `Siswa ID: ${siswa.id}`
+                }))
+                .sort((a, b) => a.nama.localeCompare(b.nama, "id"));
+
+            filterNama.innerHTML =
+                '<option value="semua">Semua Siswa</option>' +
+                pilihanSiswa.map(siswa => `
+                    <option value="${adminEscape(siswa.id)}">
+                        ${adminEscape(siswa.nama)}
+                    </option>
+                `).join("");
+
+            if (
+                pilihanLama === "semua" ||
+                pilihanSiswa.some(siswa => siswa.id === pilihanLama)
+            ) {
+                filterNama.value = pilihanLama;
+            }
+        }
+
+        // Gabungkan absensi masuk dan keluar pada tanggal yang sama.
+        const grup = {};
+
+        daftarAbsensi.forEach(item => {
+            const idSiswa = Number(item.student_id);
+            const tanggal = String(item.attendance_date || "").slice(0, 10);
+
+            if (!idSiswa || !tanggal) return;
+
+            if (namaDipilih !== "semua" &&
+                String(idSiswa) !== namaDipilih) {
+                return;
+            }
+
+            if (periode === "bulan" &&
+                tanggal.slice(0, 7) !== bulanDipilih) {
+                return;
+            }
+
+            const kunci = `${idSiswa}-${tanggal}`;
+            const dataSiswa = daftarSiswa.find(
+                siswa => Number(siswa.id) === idSiswa
+            );
+
+            if (!grup[kunci]) {
+                grup[kunci] = {
+                    idSiswa,
+                    nama:
+                        item.student?.nama ||
+                        item.student?.name ||
+                        dataSiswa?.nama ||
+                        dataSiswa?.name ||
+                        `Siswa ID: ${idSiswa}`,
+                    tanggal,
+                    masuk: null,
+                    keluar: null,
+                    status: item.status
+                };
+            }
+
+            if (item.attendance_type === "masuk") {
+                grup[kunci].masuk = item;
+                grup[kunci].status = item.status;
+            }
+
+            if (item.attendance_type === "keluar") {
+                grup[kunci].keluar = item;
+            }
+        });
+
+        const rekap = Object.values(grup).sort((a, b) =>
+            String(b.tanggal).localeCompare(String(a.tanggal)) ||
+            a.nama.localeCompare(b.nama, "id")
+        );
+
+        tbody.innerHTML = rekap.map((item, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${adminEscape(item.nama)}</td>
+                <td>${adminEscape(formatDate(item.tanggal))}</td>
+                <td>${adminEscape(
+                    item.masuk
+                        ? formatTime(item.masuk.attendance_time)
+                        : "-"
+                )}</td>
+                <td>${adminEscape(
+                    item.keluar
+                        ? formatTime(item.keluar.attendance_time)
+                        : "-"
+                )}</td>
+                <td>${adminEscape(displayStatus(item.status))}</td>
+            </tr>
+        `).join("") || `
+            <tr>
+                <td colspan="6">Tidak ada absensi pada filter tersebut.</td>
+            </tr>
+        `;
+
+        console.log("REKAP ABSENSI ADMIN:", rekap);
+
+    } catch (error) {
+        console.error("Gagal memuat rekap absensi admin:", error);
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6">Gagal memuat data absensi. Periksa Console.</td>
+            </tr>
+        `;
+    }
+}
+
+
+
+async function ambilSemuaAbsensi() {
+  const semuaAbsensi = [];
+  const ukuranHalaman = 100;
+  let halaman = 1;
+  let totalData = Infinity;
+
+  while (semuaAbsensi.length < totalData) {
     const hasil = await Api.attendances({
-      page: 1,
-      page_size: 100
+      page: halaman,
+      page_size: ukuranHalaman
     });
 
-    const daftarAbsensi = Array.isArray(hasil?.items)
+    const items = Array.isArray(hasil?.items)
       ? hasil.items
       : Array.isArray(hasil)
         ? hasil
         : [];
 
-    const daftarSiswa = await Api.students(false);
-    const siswa = Array.isArray(daftarSiswa) ? daftarSiswa : [];
+    semuaAbsensi.push(...items);
 
-    const grup = {};
+    if (typeof hasil?.total === "number") {
+      totalData = hasil.total;
+    } else {
+      if (items.length < ukuranHalaman) break;
+    }
 
-    daftarAbsensi.forEach(item => {
-      const idSiswa = Number(item.student_id);
-      const tanggal = item.attendance_date;
-      const kunci = `${idSiswa}-${tanggal}`;
+    if (items.length === 0) break;
 
-      const dataSiswa = siswa.find(
-        s => Number(s.id) === idSiswa
+    halaman++;
+  }
+
+  return semuaAbsensi;
+}
+
+
+// ==========================================
+// SERTIFIKAT PKL - HITUNG NILAI SISWA
+// ==========================================
+
+async function renderSertifikatAdmin() {
+  const tbody = document.getElementById("tabelSertifikat");
+  if (!tbody) return;
+
+  tbody.innerHTML = `<tr><td colspan="8">Memuat data sertifikat...</td></tr>`;
+
+  try {
+   const [daftarAbsensi, hasilTugas] = await Promise.all([
+     ambilSemuaAbsensi(),
+     Api.tasks()
+]);
+
+    const daftarSiswa = window.dataAdmin?.students || [];
+    
+    const daftarTugas = Array.isArray(hasilTugas) ? hasilTugas : [];
+
+    // Perbarui daftar ini setiap tahun berdasarkan kalender resmi.
+    // Format: YYYY-MM-DD
+    const tanggalMerah = new Set([
+      "2026-01-01",
+      "2026-02-17",
+      "2026-03-19",
+      "2026-03-20",
+      "2026-03-23",
+      "2026-03-24",
+      "2026-04-03",
+      "2026-05-01",
+      "2026-05-14",
+      "2026-05-27",
+      "2026-05-31",
+      "2026-06-01",
+      "2026-06-16",
+      "2026-08-17",
+      "2026-08-25",
+      "2026-12-25"
+    ]);
+
+    // Bobot status absensi.
+    const bobotStatus = {
+  bekerja: 10,
+  hadir: 10,
+  terlambat: 10,
+  sakit: 5,
+  izin: 3,
+  alpa: 0
+ };
+
+    function aman(nilai) {
+      const elemen = document.createElement("span");
+      elemen.textContent = String(nilai ?? "-");
+      return elemen.innerHTML;
+    }
+
+    function tanggalLokal(nilai) {
+      if (!nilai) return null;
+
+      const bagian = String(nilai).slice(0, 10).split("-");
+      if (bagian.length !== 3) return null;
+
+      const [tahun, bulan, hari] = bagian.map(Number);
+      const tanggal = new Date(tahun, bulan - 1, hari);
+
+      if (
+        Number.isNaN(tanggal.getTime()) ||
+        tanggal.getFullYear() !== tahun ||
+        tanggal.getMonth() !== bulan - 1 ||
+        tanggal.getDate() !== hari
+      ) return null;
+
+      return tanggal;
+    }
+
+    function formatTanggal(nilai) {
+      const tanggal = tanggalLokal(nilai);
+      return tanggal
+        ? tanggal.toLocaleDateString("id-ID")
+        : "-";
+    }
+
+    function formatISO(tanggal) {
+      const tahun = tanggal.getFullYear();
+      const bulan = String(tanggal.getMonth() + 1).padStart(2, "0");
+      const hari = String(tanggal.getDate()).padStart(2, "0");
+      return `${tahun}-${bulan}-${hari}`;
+    }
+
+    function hariWajibMasuk(mulai, akhir) {
+      const awal = tanggalLokal(mulai);
+      const batas = tanggalLokal(akhir);
+      if (!awal || !batas || awal > batas) return [];
+
+      const daftar = [];
+      const tanggal = new Date(awal);
+
+      while (tanggal <= batas) {
+        const hari = tanggal.getDay();
+        const iso = formatISO(tanggal);
+
+        if (
+          hari !== 0 &&
+          hari !== 6 &&
+          !tanggalMerah.has(iso)
+        ) {
+          daftar.push(iso);
+        }
+
+        tanggal.setDate(tanggal.getDate() + 1);
+      }
+
+      return daftar;
+    }
+
+     const sekarang = new Date();
+     sekarang.setHours(0, 0, 0, 0);
+
+    tbody.innerHTML = daftarSiswa.map((siswa, index) => {
+      const idSiswa = Number(siswa.id);
+      const mulai = siswa.startPkl;
+      const selesai = siswa.endPkl;
+      const tanggalMulai = tanggalLokal(mulai);
+      const tanggalSelesai = tanggalLokal(selesai);
+
+      const periodeValid = Boolean(
+        tanggalMulai &&
+        tanggalSelesai &&
+        tanggalMulai <= tanggalSelesai
+      );
+      const periodeBerakhir = Boolean(
+  tanggalSelesai && tanggalSelesai < sekarang
+);
+
+      let batasAkhir = null;
+
+      if (periodeValid && tanggalMulai <= sekarang) {
+        batasAkhir = new Date(
+          Math.min(tanggalSelesai.getTime(), sekarang.getTime())
+        );
+      }
+
+      
+const seluruhHariPKL = periodeValid
+  ? hariWajibMasuk(mulai, selesai)
+  : [];
+
+const hariBerjalan = periodeValid && tanggalMulai <= sekarang
+  ? hariWajibMasuk(
+      mulai,
+      formatISO(
+        new Date(
+          Math.min(
+            tanggalSelesai.getTime(),
+            sekarang.getTime()
+          )
+        )
+      )
+    )
+  : [];
+
+
+
+// Setelah PKL berakhir, gunakan seluruh periode.
+// Selama PKL berlangsung, gunakan hari yang sudah berjalan.
+
+
+const hariUntukNilai = seluruhHariPKL;
+
+
+// Ambil absensi masuk per tanggal.
+const absensiPerTanggal = new Map();
+
+daftarAbsensi.forEach(item => {
+  if (
+    Number(item.student_id) !== idSiswa ||
+    item.attendance_type !== "masuk"
+  ) return;
+
+  const tanggal = String(item.attendance_date || "").slice(0, 10);
+  if (!hariUntukNilai.includes(tanggal)) return;
+
+  const status = String(item.status || "")
+    .trim()
+    .toLowerCase();
+
+  if (["ditolak", "di tolak", "ditolak pembimbing"].includes(status)) {
+    return;
+  }
+
+  if (!Object.prototype.hasOwnProperty.call(bobotStatus, status)) {
+    return;
+  }
+
+  if (!absensiPerTanggal.has(tanggal)) {
+    absensiPerTanggal.set(tanggal, status);
+  }
+});
+
+
+let totalPoin = 0;
+let jumlahHariHadir = 0;
+
+hariUntukNilai.forEach(tanggal => {
+  const status = absensiPerTanggal.get(tanggal) || "alpa";
+
+  totalPoin += bobotStatus[status] ?? 0;
+
+  if (["bekerja", "hadir", "terlambat"].includes(status)) {
+    jumlahHariHadir++;
+  }
+});
+
+
+const nilaiKehadiran =
+  periodeBerakhir && hariUntukNilai.length > 0
+    ? Math.round(
+        (totalPoin / (hariUntukNilai.length * 10)) * 100
+      )
+    : null;
+
+
+
+      const tugasSiswa = daftarTugas.filter(item =>
+        Number(item.id_siswa ?? item.student_id) === idSiswa
       );
 
-      if (!grup[kunci]) {
-        grup[kunci] = {
-          nama:
-            item.student?.nama ||
-            item.student?.name ||
-            dataSiswa?.nama ||
-            dataSiswa?.name ||
-            `Siswa ID: ${idSiswa}`,
-          tanggal,
-          masuk: null,
-          keluar: null,
-          status: item.status
-        };
-      }
+      const jumlahTugas = tugasSiswa.length;
+      const tugasSelesai = tugasSiswa.filter(item =>
+        String(item.status_progress || "").toLowerCase() === "selesai"
+      ).length;
 
-      if (item.attendance_type === "masuk") {
-        grup[kunci].masuk = item;
-        grup[kunci].status = item.status;
-      }
+      const nilaiTugas =
+     periodeBerakhir && jumlahTugas > 0
+    ? Math.round((tugasSelesai / jumlahTugas) * 100)
+    : null;
 
-      if (item.attendance_type === "keluar") {
-        grup[kunci].keluar = item;
-      }
-    });
+      const nilaiAkhir =
+        nilaiKehadiran !== null && nilaiTugas !== null
+          ? Math.round((nilaiKehadiran + nilaiTugas) / 2)
+          : null;
 
-    const rekap = Object.values(grup).sort((a, b) =>
-      String(b.tanggal || "").localeCompare(String(a.tanggal || ""))
-    );
+      
 
-    tbody.innerHTML = rekap.map((item, index) => `
-      <tr>
-        <td>${index + 1}</td>
-        <td>${adminEscape(item.nama)}</td>
-        <td>${adminEscape(formatDate(item.tanggal))}</td>
-        <td>${adminEscape(
-          item.masuk
-            ? formatTime(item.masuk.attendance_time)
-            : "-"
-        )}</td>
-        <td>${adminEscape(
-          item.keluar
-            ? formatTime(item.keluar.attendance_time)
-            : "-"
-        )}</td>
-        <td>${adminEscape(displayStatus(item.status))}</td>
-      </tr>
-    `).join("") || `
-      <tr>
-        <td colspan="6">Belum ada data absensi.</td>
-      </tr>
-    `;
+         const keyPersetujuan = `sertifikat_pkl_disetujui_${idSiswa}`;
+         const sudahDisetujui = localStorage.getItem(keyPersetujuan) === "true";
 
-    console.log("REKAP ABSENSI ADMIN:", rekap);
+          let statusSertifikat = "Data belum lengkap";
+
+         if (periodeBerakhir && nilaiAkhir !== null) {
+         statusSertifikat = sudahDisetujui
+         ? "Disetujui admin"
+         : "Siap diperiksa admin";
+          } else if (periodeBerakhir) {
+         statusSertifikat = "Periksa data nilai";
+         } else if (periodeValid) {
+         statusSertifikat = "PKL berlangsung";
+         }
+      const nama = siswa.nama || siswa.name || siswa.full_name || "-";
+
+      return `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${aman(nama)}</td>
+          <td>${aman(formatTanggal(mulai))} s.d. ${aman(formatTanggal(selesai))}</td>
+          
+          <td>
+              ${periodeBerakhir
+              ? (nilaiKehadiran === null
+              ? "-"
+               : `${nilaiKehadiran} (${totalPoin}/${hariUntukNilai.length * 10})`)
+               : `${jumlahHariHadir}/${hariUntukNilai.length}`}
+            </td>
+
+          
+            <td>
+               ${periodeBerakhir
+              ? (nilaiTugas === null
+              ? "Belum tersedia"
+              : `${nilaiTugas} (${tugasSelesai}/${jumlahTugas})`)
+             : `${tugasSelesai}/${jumlahTugas}`}
+           </td>
+
+          <td>${nilaiAkhir === null ? "-" : nilaiAkhir}</td>
+
+<td>${aman(statusSertifikat)}</td>
+
+<td>
+  ${
+    !periodeBerakhir
+      ? `<button type="button" disabled>PKL berlangsung</button>`
+      : nilaiAkhir === null
+        ? `<button type="button" disabled>Data belum lengkap</button>`
+        : !sudahDisetujui
+          ? `<button
+              type="button"
+              data-action="approve"
+              data-student-id="${idSiswa}">
+              Periksa &amp; Setujui
+            </button>`
+          : `<button
+              type="button"
+              data-action="print"
+              data-student-id="${idSiswa}"
+              data-name="${aman(nama)}"
+              data-start="${aman(formatTanggal(mulai))}"
+              data-end="${aman(formatTanggal(selesai))}"
+              data-attendance="${nilaiKehadiran}"
+              data-task="${nilaiTugas}"
+              data-final="${nilaiAkhir}">
+              Cetak Sertifikat
+            </button>`
+  }
+</td>
+        </tr>
+      `;
+    }).join("") || `<tr><td colspan="8">Belum ada data siswa.</td></tr>`;
 
   } catch (error) {
-    console.error("Gagal memuat rekap absensi admin:", error);
-
+    console.error("Gagal memuat sertifikat:", error);
     tbody.innerHTML = `
-      <tr>
-        <td colspan="6">
-          Gagal memuat data absensi. Periksa Console.
-        </td>
-      </tr>
+      <tr><td colspan="8">Gagal memuat data. Periksa koneksi backend.</td></tr>
     `;
   }
 }
+
+
+document.addEventListener("click", async function (e) {
+  const tombol = e.target.closest("button[data-action]");
+  if (!tombol) return;
+
+  const aksi = tombol.dataset.action;
+  const idSiswa = tombol.dataset.studentId;
+
+  if (!idSiswa) return;
+
+  if (aksi === "approve") {
+    const yakin = confirm(
+      "Apakah kamu yakin ingin menyetujui sertifikat siswa ini?"
+    );
+
+    if (!yakin) return;
+
+    localStorage.setItem(
+      `sertifikat_pkl_disetujui_${idSiswa}`,
+      "true"
+    );
+
+    alert("Sertifikat berhasil disetujui.");
+
+    await renderSertifikatAdmin();
+    return;
+  }
+
+  if (aksi === "print") {
+    const nama = tombol.dataset.name || "Siswa";
+    const mulai = tombol.dataset.start || "-";
+    const selesai = tombol.dataset.end || "-";
+    const kehadiran = tombol.dataset.attendance || "-";
+    const tugas = tombol.dataset.task || "-";
+    const nilaiAkhir = tombol.dataset.final || "-";
+
+    const jendela = window.open("", "_blank");
+
+    if (!jendela) {
+      alert("Popup diblokir. Izinkan popup untuk halaman ini.");
+      return;
+    }
+
+    jendela.document.write(`
+      <!DOCTYPE html>
+      <html lang="id">
+      <head>
+        <meta charset="UTF-8">
+        <title>Sertifikat PKL - ${nama}</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 35px;
+            text-align: center;
+          }
+
+          .sertifikat {
+            border: 6px double #333;
+            padding: 45px 30px;
+            min-height: 400px;
+          }
+
+          h1 {
+            margin-bottom: 10px;
+          }
+
+          .nama {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 25px 0;
+          }
+
+          .nilai {
+            margin-top: 25px;
+            line-height: 2;
+          }
+
+          @page {
+            size: A4 landscape;
+            margin: 15mm;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="sertifikat">
+          <h1>SERTIFIKAT PRAKTIK KERJA LAPANGAN</h1>
+          <p>Diberikan kepada:</p>
+
+          <div class="nama">${nama}</div>
+
+          <p>
+            Telah menyelesaikan kegiatan Praktik Kerja Lapangan
+            pada periode ${mulai} sampai ${selesai}.
+          </p>
+
+          <div class="nilai">
+            Nilai Kehadiran: ${kehadiran}<br>
+            Nilai Tugas: ${tugas}<br>
+            <strong>Nilai Akhir: ${nilaiAkhir}</strong>
+          </div>
+
+          <p style="margin-top: 45px;">
+            Admin PKL
+          </p>
+        </div>
+
+        <script>
+          window.onload = function () {
+            window.print();
+          };
+        <\/script>
+      </body>
+      </html>
+    `);
+
+    jendela.document.close();
+  }
+});
+
 
 
 function renderRekapAdmin() {
@@ -1544,9 +2178,9 @@ function renderRekapAdmin() {
     if (periode !== "semua") {
       if (!tanggal) return false;
 
-      if (periode === "hari" && tanggal.getTime() !== sekarang.getTime()) {
-        return false;
-      }
+      if (periode === "hari" && tanggal.toDateString() !== sekarang.toDateString()) {
+  return false;
+}
 
       if (periode === "minggu" && tanggal < awalMinggu) {
         return false;
@@ -1971,6 +2605,17 @@ document.getElementById("btnTampilkanRekap")
   ?.addEventListener("click", renderRekapAdmin);
 
   
+document.getElementById("filterPeriodeAbsensi")
+    ?.addEventListener("change", renderRekapAbsensiAdmin);
+
+document.getElementById("filterBulanAbsensi")
+    ?.addEventListener("change", renderRekapAbsensiAdmin);
+
+document.getElementById("filterNamaAbsensi")
+    ?.addEventListener("change", renderRekapAbsensiAdmin);
+
+
+  
 document.getElementById("btnCetakDaftarTugas")
   ?.addEventListener("click", cetakDaftarTugasAdmin);
 
@@ -2028,7 +2673,8 @@ function bukaHalamanAdmin(namaHalaman) {
     "rekap-absensi": "Rekap Absensi",
     "data-siswa": "Data Siswa",
     "data-pembimbing": "Data Pembimbing",
-    "rekap-tugas": "Rekap Tugas"
+    "rekap-tugas": "Rekap Tugas",
+    sertifikat: "Sertifikat PKL"
   };
 
   if (judul) {

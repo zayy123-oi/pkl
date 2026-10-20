@@ -43,6 +43,11 @@
                     data-halaman="rekap-tugas">
                     Rekap Tugas
                 </button>
+
+                <button type="button" class="sidebar-link"
+                       data-halaman="sertifikat">
+                       Sertifikat PKL
+               </button>
             </nav>
 
             <div class="sidebar-footer">
@@ -112,38 +117,57 @@
                     </section>
                 </section>
 
-                <!-- Rekap Absensi -->
-                <section class="admin-halaman" id="halaman-rekap-absensi" hidden>
-                    <section class="card">
-                        <h2>Rekap Absensi</h2>
-                        <p>
-                            Halaman untuk melihat data kehadiran siswa PKL.
-                        </p>
+                
+<!-- Rekap Absensi -->
+<section class="admin-halaman" id="halaman-rekap-absensi" hidden>
+    <section class="card">
+        <h2>Rekap Absensi</h2>
+        <p>Filter absensi berdasarkan periode dan nama siswa.</p>
 
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>No.</th>
-                                        <th>Nama Siswa</th>
-                                        <th>Tanggal</th>
-                                        <th>Jam Masuk</th>
-                                        <th>Jam Keluar</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tabelRekapAbsensi">
-                                    <tr>
-                                        <td colspan="6">
-                                            Data absensi akan ditampilkan setelah
-                                            dihubungkan ke backend.
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
-                </section>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="filterPeriodeAbsensi">Periode Rekap</label>
+                <select id="filterPeriodeAbsensi">
+                    <option value="semua">Keseluruhan</option>
+                    <option value="bulan">Bulanan</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="filterBulanAbsensi">Bulan</label>
+                <input type="month" id="filterBulanAbsensi" disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="filterNamaAbsensi">Nama Siswa</label>
+                <select id="filterNamaAbsensi">
+                    <option value="semua">Semua Siswa</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Nama Siswa</th>
+                        <th>Tanggal</th>
+                        <th>Jam Masuk</th>
+                        <th>Jam Keluar</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelRekapAbsensi">
+                    <tr>
+                        <td colspan="6">Data absensi akan ditampilkan di sini.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+
 
                 <!-- Data Siswa -->
                 <section class="admin-halaman" id="halaman-data-siswa" hidden>
@@ -295,6 +319,46 @@
                         </div>
                     </section>
                 </section>
+
+                
+<!-- Sertifikat PKL -->
+<section class="admin-halaman" id="halaman-sertifikat" hidden>
+    <section class="card">
+        <h2>Sertifikat PKL</h2>
+
+        <p>
+            Pantau progres kehadiran dan tugas siswa selama PKL.
+            Nilai akhir dihitung setelah periode PKL berakhir.
+            Sertifikat hanya dapat dicetak setelah disetujui admin.
+        </p>
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Nama Siswa</th>
+                        <th>Periode PKL</th>
+                        <th>Nilai / Progres Kehadiran</th>
+                        <th>Nilai / Progres Tugas</th>
+                        <th>Nilai Akhir</th>
+                        <th>Status Sertifikat</th>
+                        <th>Aksi Admin</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tabelSertifikat">
+                    <tr>
+                        <td colspan="8">
+                            Data sertifikat akan ditampilkan di sini.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+
 
             </main>
         </div>

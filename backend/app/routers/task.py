@@ -4,7 +4,8 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models import Task
+from app.models import Task, Student
+from zoneinfo import ZoneInfo
 from app.schemas import TaskCreate, TaskOut, TaskUpdate
 from app.security import get_current_user
 
@@ -65,6 +66,18 @@ def get_task(
 
     return task
 
+def check_student_pkl_period(student: Student):
+    today = datetime.now(ZoneInfo("Asia/Jakarta")).date()
+
+    if student.endPkl and today > student.endPkl:
+        raise HTTPException(
+            status_code=403,
+            detail="Periode PKL kamu sudah berakhir. Perubahan progres tugas tidak dapat dilakukan."
+        )
+
+
+@router.patch("/{task_id}", response_model=TaskOut)
+
 @router.patch("/{task_id}", response_model=TaskOut)
 def update_task(
     task_id: int,
@@ -79,6 +92,17 @@ def update_task(
             status_code=404,
             detail="Tugas tidak ditemukan"
         )
+
+    if current_user.role == "siswa":
+     student = db.get(Student, current_user.student_id)
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Data siswa tidak ditemukan."
+        )
+
+    check_student_pkl_period(student)
 
     updates = payload.model_dump(exclude_unset=True)
 

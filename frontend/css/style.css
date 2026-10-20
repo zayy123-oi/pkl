@@ -256,18 +256,25 @@ input:focus {
 /* ==========================================
    4. HEADER / NAVBAR (DASHBOARD)
    ========================================== */
-.navbar {
-  background: var(--siswa-nav-bg);
-  color: #ffffff;
-  padding: 1.1rem 2.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: 0 4px 15px rgba(30, 58, 138, 0.25);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+
+body.admin-page .navbar {
+    position: static;
+    top: auto;
+    left: auto;
+    right: auto;
+    z-index: auto;
+    width: 100%;
+    box-sizing: border-box;
+
+    background: var(--siswa-nav-bg);
+    color: #ffffff;
+    padding: 1.1rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.25);
 }
+
 
 .navbar h3 {
   font-size: 1.3rem;
@@ -4139,3 +4146,276 @@ body.admin-page {
   margin: 0;
   white-space: nowrap;
 }
+
+/* Latar belakang pop-up */
+.konfirmasi-nonaktif-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(6px);
+}
+
+/* Kotak pop-up */
+.konfirmasi-nonaktif-modal {
+  width: 100%;
+  max-width: 480px;
+  padding: 30px;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 25px 70px rgba(15, 23, 42, 0.3);
+  animation: munculNonaktif 0.2s ease-out;
+}
+
+/* Judul */
+.konfirmasi-nonaktif-heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.konfirmasi-nonaktif-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+  background: #fee2e2;
+  color: #dc2626;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.konfirmasi-nonaktif-heading h3 {
+  margin: 0 0 6px;
+  color: #1e3a8a;
+  font-size: 23px;
+}
+
+.konfirmasi-nonaktif-heading p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* Pesan konfirmasi */
+.konfirmasi-nonaktif-nama {
+  margin: 0 0 16px;
+  color: #334155;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.konfirmasi-nonaktif-nama strong {
+  color: #1d4ed8;
+}
+
+.konfirmasi-nonaktif-info {
+  padding: 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  background: #eff6ff;
+  color: #1e40af;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* Tombol */
+.konfirmasi-nonaktif-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.konfirmasi-nonaktif-actions button {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-batal-nonaktif {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.btn-batal-nonaktif:hover {
+  background: #cbd5e1;
+}
+
+.btn-setuju-nonaktif {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.btn-setuju-nonaktif:hover {
+  background: #b91c1c;
+}
+
+@keyframes munculNonaktif {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .konfirmasi-nonaktif-modal {
+    padding: 22px;
+  }
+
+  .konfirmasi-nonaktif-actions {
+    flex-direction: column-reverse;
+  }
+
+  .konfirmasi-nonaktif-actions button {
+    width: 100%;
+  }
+}
+
+/* Perbaikan header dashboard siswa dan pembimbing */
+body.siswa-page .navbar,
+body.pembimbing-page .navbar {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 84px;
+    padding: 16px 32px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+
+    background: var(--siswa-nav-bg);
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(15, 45, 75, 0.18);
+}
+
+body.pembimbing-page .navbar {
+    background: linear-gradient(
+        135deg,
+        #000000 0%,
+        #6471e6 45%,
+        #ff6b00 100%
+    );
+}
+
+body.siswa-page .navbar h3,
+body.pembimbing-page .navbar h3 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 24px;
+    line-height: 1.4;
+}
+
+body.siswa-page .user-profile,
+body.pembimbing-page .user-profile {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px;
+    flex-shrink: 0;
+}
+
+body.siswa-page .realtime-clock,
+body.pembimbing-page .realtime-clock {
+    color: #ffffff;
+    text-align: right;
+    line-height: 1.5;
+}
+
+body.siswa-page #clock-time,
+body.siswa-page #clock-date,
+body.pembimbing-page #clock-time,
+body.pembimbing-page #clock-date {
+    color: #ffffff;
+}
+
+@media (max-width: 600px) {
+    body.siswa-page .navbar,
+    body.pembimbing-page .navbar {
+        flex-wrap: wrap;
+        padding: 14px 16px;
+        gap: 12px;
+    }
+
+    body.siswa-page .navbar h3,
+    body.pembimbing-page .navbar h3 {
+        font-size: 20px;
+    }
+
+    body.siswa-page .user-profile,
+    body.pembimbing-page .user-profile {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    body.siswa-page .realtime-clock,
+    body.pembimbing-page .realtime-clock {
+        text-align: left;
+    }
+}
+
+
+/* Tampilan fitur ketika periode PKL berakhir */
+.periode-warning {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    color: #41627f;
+    background: #edf5fc;
+    border: 1px solid #d3e3f3;
+    border-radius: 12px;
+    font-size: 15px;
+}
+
+/* Tombol yang tidak bisa digunakan */
+.absen-actions button:disabled,
+button:disabled {
+    background: #d5dde6 !important;
+    color: #8b9bad !important;
+    border-color: #d5dde6 !important;
+    box-shadow: none !important;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+/* Form absensi dibuat pudar */
+#formAbsensi input:disabled,
+#formAbsensi select:disabled,
+#formLaporan input:disabled,
+#formLaporan textarea:disabled,
+#formLaporan select:disabled {
+    background: #edf1f5 !important;
+    color: #8795a5 !important;
+    border-color: #d6e0e9 !important;
+    cursor: not-allowed;
+}
+
+/* Riwayat tetap normal dan mudah dibaca */
+#formAbsensi table,
+#formAbsensi table th,
+#formAbsensi table td {
+    opacity: 1;
+}
+
