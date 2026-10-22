@@ -209,3 +209,26 @@ class ReportOut(ReportBase):
     foto_laporan: Optional[str] = None
 
     siswa: Optional[StudentSchema] = None
+
+    
+class CertificateAssessmentInput(BaseModel):
+    disiplin_tanggung_jawab: float = Field(ge=0, le=100)
+    kemampuan_adaptasi: float = Field(ge=0, le=100)
+    kualitas_hasil_kerja: float = Field(ge=0, le=100)
+    komunikasi_kerja_sama: float = Field(ge=0, le=100)
+    inisiatif_etika: float = Field(ge=0, le=100)
+
+    catatan_pembimbing: str | None = Field(
+        default=None,
+        max_length=1000
+    )
+
+
+class CertificateAssessmentOut(CertificateAssessmentInput):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    student_id: int
+    supervisor_id: int
+    updated_at: datetime
+

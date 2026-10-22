@@ -134,3 +134,55 @@ class Report(Base):
 
     siswa: Mapped["Student"] = relationship()
     task: Mapped["Task | None"] = relationship()
+
+    
+class CertificateAssessment(Base):
+    __tablename__ = "penilaian_sertifikat"
+
+    id: Mapped[int] = mapped_column(
+        Integer, primary_key=True
+    )
+
+    student_id: Mapped[int] = mapped_column(
+        ForeignKey("tabel_siswa.id"),
+        unique=True,
+        index=True,
+        nullable=False
+    )
+
+    supervisor_id: Mapped[int] = mapped_column(
+        ForeignKey("tabel_pembimbing.id"),
+        nullable=False
+    )
+
+    disiplin_tanggung_jawab: Mapped[float | None] = mapped_column(
+        Float, nullable=True
+    )
+
+    kemampuan_adaptasi: Mapped[float | None] = mapped_column(
+        Float, nullable=True
+    )
+
+    kualitas_hasil_kerja: Mapped[float | None] = mapped_column(
+        Float, nullable=True
+    )
+
+    komunikasi_kerja_sama: Mapped[float | None] = mapped_column(
+        Float, nullable=True
+    )
+
+    inisiatif_etika: Mapped[float | None] = mapped_column(
+        Float, nullable=True
+    )
+
+    catatan_pembimbing: Mapped[str | None] = mapped_column(
+        Text, nullable=True
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False
+    )
+

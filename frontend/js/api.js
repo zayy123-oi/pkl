@@ -97,6 +97,8 @@ const Api = {
   updateLocation: (id,payload) => apiRequest(`/location/${id}`, { method: "PATCH", body: JSON.stringify(payload) }),
   deleteLocation: (id) => apiRequest(`/location/${id}`, { method: "DELETE" }),
   supervisors: () => apiRequest("/mentors"),
+  certificateAssessments: () =>
+  apiRequest("/mentors/certificate-assessments"),
   locations: () => apiRequest("/location"),
   reports: () => apiRequest("/reports"),
   createReport: (payload) => apiRequest("/reports", { method: "POST", body: JSON.stringify(payload) }),

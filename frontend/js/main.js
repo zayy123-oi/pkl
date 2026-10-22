@@ -1851,17 +1851,25 @@ async function renderSertifikatAdmin() {
   const tbody = document.getElementById("tabelSertifikat");
   if (!tbody) return;
 
-  tbody.innerHTML = `<tr><td colspan="8">Memuat data sertifikat...</td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="13">Memuat data sertifikat...</td></tr>`;
 
   try {
-   const [daftarAbsensi, hasilTugas] = await Promise.all([
-     ambilSemuaAbsensi(),
-     Api.tasks()
+   const [
+  daftarAbsensi,
+  hasilTugas,
+  hasilPenilaian
+] = await Promise.all([
+  ambilSemuaAbsensi(),
+  Api.tasks(),
+  Api.certificateAssessments()
 ]);
 
     const daftarSiswa = window.dataAdmin?.students || [];
     
     const daftarTugas = Array.isArray(hasilTugas) ? hasilTugas : [];
+    const daftarPenilaian = Array.isArray(hasilPenilaian)
+   ? hasilPenilaian
+   : [];
 
     // Perbarui daftar ini setiap tahun berdasarkan kalender resmi.
     // Format: YYYY-MM-DD
@@ -1966,6 +1974,27 @@ async function renderSertifikatAdmin() {
       const idSiswa = Number(siswa.id);
       const mulai = siswa.startPkl;
       const selesai = siswa.endPkl;
+      const penilaian = daftarPenilaian.find(
+  item => Number(item.student_id) === idSiswa
+);
+
+const nilaiDisiplin = penilaian?.disiplin_tanggung_jawab ?? null;
+const nilaiAdaptasi = penilaian?.kemampuan_adaptasi ?? null;
+const nilaiKualitas = penilaian?.kualitas_hasil_kerja ?? null;
+const nilaiKomunikasi = penilaian?.komunikasi_kerja_sama ?? null;
+const nilaiInisiatif = penilaian?.inisiatif_etika ?? null;
+
+const nilaiPembimbing = [
+  nilaiDisiplin,
+  nilaiAdaptasi,
+  nilaiKualitas,
+  nilaiKomunikasi,
+  nilaiInisiatif
+];
+
+const penilaianLengkap = nilaiPembimbing.every(
+  nilai => nilai !== null && Number.isFinite(Number(nilai))
+);
       const tanggalMulai = tanggalLokal(mulai);
       const tanggalSelesai = tanggalLokal(selesai);
 
@@ -2082,9 +2111,20 @@ const nilaiKehadiran =
     : null;
 
       const nilaiAkhir =
-        nilaiKehadiran !== null && nilaiTugas !== null
-          ? Math.round((nilaiKehadiran + nilaiTugas) / 2)
-          : null;
+  periodeBerakhir &&
+  nilaiKehadiran !== null &&
+  nilaiTugas !== null &&
+  penilaianLengkap
+    ? Math.round(
+        nilaiKehadiran * 0.15 +
+        nilaiTugas * 0.15 +
+        Number(nilaiDisiplin) * 0.15 +
+        Number(nilaiAdaptasi) * 0.15 +
+        Number(nilaiKualitas) * 0.15 +
+        Number(nilaiKomunikasi) * 0.15 +
+        Number(nilaiInisiatif) * 0.10
+      )
+    : null;
 
       
 
@@ -2119,15 +2159,23 @@ const nilaiKehadiran =
             </td>
 
           
-            <td>
-               ${periodeBerakhir
-              ? (nilaiTugas === null
-              ? "Belum tersedia"
-              : `${nilaiTugas} (${tugasSelesai}/${jumlahTugas})`)
-             : `${tugasSelesai}/${jumlahTugas}`}
-           </td>
+            
+<td>
+  ${periodeBerakhir
+    ? (nilaiTugas === null
+      ? "Belum tersedia"
+      : `${nilaiTugas} (${tugasSelesai}/${jumlahTugas})`)
+    : `${tugasSelesai}/${jumlahTugas}`}
+</td>
 
-          <td>${nilaiAkhir === null ? "-" : nilaiAkhir}</td>
+<td>${nilaiDisiplin ?? "Belum dinilai"}</td>
+<td>${nilaiAdaptasi ?? "Belum dinilai"}</td>
+<td>${nilaiKualitas ?? "Belum dinilai"}</td>
+<td>${nilaiKomunikasi ?? "Belum dinilai"}</td>
+<td>${nilaiInisiatif ?? "Belum dinilai"}</td>
+
+<td>${nilaiAkhir === null ? "-" : nilaiAkhir}</td>
+
 
 <td>${aman(statusSertifikat)}</td>
 
@@ -2153,7 +2201,12 @@ const nilaiKehadiran =
               data-end="${aman(formatTanggal(selesai))}"
               data-attendance="${nilaiKehadiran}"
               data-task="${nilaiTugas}"
-              data-final="${nilaiAkhir}">
+              data-disiplin="${nilaiDisiplin}"
+              data-adaptasi="${nilaiAdaptasi}"
+              data-kualitas="${nilaiKualitas}"
+              data-komunikasi="${nilaiKomunikasi}"
+              data-inisiatif="${nilaiInisiatif}"
+              data-final="${nilaiAkhir}"
               Cetak Sertifikat
             </button>`
   }
@@ -2202,9 +2255,17 @@ document.addEventListener("click", async function (e) {
     const nama = tombol.dataset.name || "Siswa";
     const mulai = tombol.dataset.start || "-";
     const selesai = tombol.dataset.end || "-";
+    
     const kehadiran = tombol.dataset.attendance || "-";
     const tugas = tombol.dataset.task || "-";
+    const disiplin = tombol.dataset.disiplin || "-";
+    const adaptasi = tombol.dataset.adaptasi || "-";
+    const kualitas = tombol.dataset.kualitas || "-";
+    const komunikasi = tombol.dataset.komunikasi || "-";
+    const inisiatif = tombol.dataset.inisiatif || "-";
     const nilaiAkhir = tombol.dataset.final || "-";
+
+    
 
     const jendela = window.open("", "_blank");
 
@@ -2265,11 +2326,18 @@ document.addEventListener("click", async function (e) {
             pada periode ${mulai} sampai ${selesai}.
           </p>
 
-          <div class="nilai">
-            Nilai Kehadiran: ${kehadiran}<br>
-            Nilai Tugas: ${tugas}<br>
-            <strong>Nilai Akhir: ${nilaiAkhir}</strong>
-          </div>
+          <
+<div class="nilai">
+    Nilai Kehadiran: ${kehadiran}<br>
+    Nilai Penyelesaian Tugas: ${tugas}<br>
+    Disiplin dan Tanggung Jawab: ${disiplin}<br>
+    Kemampuan Kerja dan Adaptasi Operasional: ${adaptasi}<br>
+    Kualitas dan Ketepatan Hasil Kerja: ${kualitas}<br>
+    Komunikasi dan Kerja Sama Tim: ${komunikasi}<br>
+    Inisiatif dan Etika Kerja: ${inisiatif}<br>
+    <strong>Nilai Akhir: ${nilaiAkhir}</strong>
+</div>
+>
 
           <p style="margin-top: 45px;">
             Admin PKL

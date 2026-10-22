@@ -65,6 +65,12 @@ def get_current_user(
             raise ValueError("Token tidak memiliki subject")
 
         user = db.get(User, int(user_id))
+        print(
+    "DEBUG USER:",
+    user.id if user else None,
+    user.username if user else None,
+    user.role if user else None,
+)
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
