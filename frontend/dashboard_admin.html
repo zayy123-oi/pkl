@@ -76,8 +76,10 @@
 
             <main class="container">
 
+                
                 <!-- Dashboard -->
                 <section class="admin-halaman" id="halaman-dashboard">
+
                     <section class="card">
                         <h2>Selamat Datang, <span id="adminNamaDashboard">Admin</span></h2>
                         <p>
@@ -115,7 +117,44 @@
                             </div>
                         </div>
                     </section>
+
+                    <!-- Statistik Absensi hanya di Dashboard -->
+                    <section class="card">
+                        <h2>Statistik Absensi Siswa</h2>
+                        <p>
+                            Jumlah izin, keterlambatan, sakit, dan penugasan
+                            kerja di luar lokasi PKL untuk setiap siswa.
+                        </p>
+
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>No.</th>
+                                        <th>Nama Siswa</th>
+                                        <th>Izin</th>
+                                        <th>Terlambat</th>
+                                        <th>Sakit</th>
+                                        <th>Kerja di Luar</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelStatistikAbsensiDashboard">
+                                    <tr>
+                                        <td colspan="6">
+                                            Statistik absensi akan ditampilkan di sini.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
                 </section>
+
+
+                
+
+
 
                 
 <!-- Rekap Absensi -->

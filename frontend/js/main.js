@@ -1144,7 +1144,23 @@ const namaSiswa =
         <td>${item.deskripsi_tugas || item.description || "-"}</td>
         <td>${item.deadline ? new Date(item.deadline).toLocaleString("id-ID") : "-"}</td>
         <td>${item.startTugas ? new Date(item.startTugas).toLocaleString("id-ID") : "-"}</td>
-        <td><strong>${statusText}</strong></td>
+                <td>
+          <strong>${statusText}</strong>
+          ${
+            progress === "selesai"
+              ? `
+                <br>
+                <button
+                  type="button"
+                  class="btn btn-warning btn-sm"
+                  onclick="mintaRevisiTugas(${item.id})"
+                >
+                  Minta Revisi
+                </button>
+              `
+              : ""
+          }
+        </td>
       </tr>
     `;
   }).join("") || `
@@ -1213,6 +1229,49 @@ function showKomentarModal() {
     input.focus();
   });
 }
+
+window.mintaRevisiTugas = async function(taskId) {
+  const yakin = confirm(
+    "Apakah kamu yakin ingin meminta revisi tugas ini?"
+  );
+
+  if (!yakin) return;
+
+  try {
+    const token = localStorage.getItem("access_token");
+
+    const response = await fetch(
+      `http://127.0.0.1:8000/api/tasks/${taskId}/revisi`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({})
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+
+      throw new Error(
+        errorData.detail || "Gagal meminta revisi tugas."
+      );
+    }
+
+    showAttendancePopup(
+      "success",
+      "Revisi Diminta",
+      "Progres tugas siswa telah dikembalikan menjadi Sedang Dikerjakan."
+    );
+
+    await renderPembimbing();
+  } catch (error) {
+    console.error("Gagal meminta revisi:", error);
+    showError(error);
+  }
+};
 
 
 window.reviewLaporan = async function(id, status) {
@@ -1479,11 +1538,112 @@ if (namaAdminDashboard) {
     tasks: daftarTugas
   };
 
-    tampilkanDataSiswaAdmin(daftarSiswa);
+tampilkanDataSiswaAdmin(daftarSiswa);
 tampilkanDataPembimbingAdmin(daftarPembimbing);
 renderRekapAdmin();
+await renderStatistikAbsensiDashboard();
 await renderRekapAbsensiAdmin();
 await renderSertifikatAdmin();
+}
+
+
+async function renderStatistikAbsensiDashboard() {
+    const tbody = document.getElementById(
+        "tabelStatistikAbsensiDashboard"
+    );
+
+    if (!tbody) return;
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="6">Memuat statistik absensi...</td>
+        </tr>
+    `;
+
+    try {
+        const [hasilAbsensi, hasilSiswa] = await Promise.all([
+            ambilSemuaAbsensi(),
+            Api.students(false)
+        ]);
+
+        const daftarAbsensi = Array.isArray(hasilAbsensi)
+            ? hasilAbsensi
+            : [];
+
+        const daftarSiswa = Array.isArray(hasilSiswa)
+            ? hasilSiswa
+            : [];
+
+        const statistik = daftarSiswa.map(siswa => ({
+            id: Number(siswa.id),
+            nama: siswa.nama || siswa.name || `Siswa ID: ${siswa.id}`,
+            izin: 0,
+            terlambat: 0,
+            sakit: 0,
+            bekerja: 0
+        }));
+
+        const statistikById = new Map(
+            statistik.map(item => [item.id, item])
+        );
+
+        daftarAbsensi.forEach(absensi => {
+            // Hitung absensi masuk saja, bukan absensi keluar.
+            if (absensi.attendance_type !== "masuk") return;
+
+            const idSiswa = Number(absensi.student_id);
+            const dataSiswa = statistikById.get(idSiswa);
+
+            if (!dataSiswa) return;
+
+            const status = String(absensi.status || "")
+                .trim()
+                .toLowerCase();
+
+            if (status === "izin") {
+                dataSiswa.izin++;
+            } else if (status === "terlambat") {
+                dataSiswa.terlambat++;
+            } else if (status === "sakit") {
+                dataSiswa.sakit++;
+            } else if (status === "bekerja") {
+                dataSiswa.bekerja++;
+            }
+        });
+
+        statistik.sort((a, b) =>
+            a.nama.localeCompare(b.nama, "id")
+        );
+
+        tbody.innerHTML = statistik.map((siswa, index) => `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${adminEscape(siswa.nama)}</td>
+                <td>${siswa.izin}</td>
+                <td>${siswa.terlambat}</td>
+                <td>${siswa.sakit}</td>
+                <td>${siswa.bekerja}</td>
+            </tr>
+        `).join("") || `
+            <tr>
+                <td colspan="6">Belum ada data siswa.</td>
+            </tr>
+        `;
+
+    } catch (error) {
+        console.error(
+            "Gagal memuat statistik absensi dashboard:",
+            error
+        );
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6">
+                    Gagal memuat statistik absensi.
+                </td>
+            </tr>
+        `;
+    }
 }
 
 

@@ -152,6 +152,7 @@ body.siswa-page {
    ========================================== */
 body.login-page {
   min-height: 100vh;
+  box-sizing: border-box;
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
@@ -494,6 +495,7 @@ select#statusAbsen {
 
 body.login-page {
   background:
+   
 
   /* GARIS DIAGONAL BIRU */
 linear-gradient(
@@ -621,9 +623,15 @@ linear-gradient(
       #f4fafd 48%,
       #e6f4fa 100%
     ) !important;
+   min-height: 100vh;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background-repeat: no-repeat;
+  background-size: cover;
 
-  min-height: 100vh;
 }
+
 
 .login-page .auth-container {
   width: 100% !important;
@@ -969,7 +977,7 @@ body.login-page::after {
    ========================================== */
 
 body.login-page .geo {
-  position: fixed;
+  position: absolute;
   width: 300px;
   height: 230px;
   z-index: 0;
@@ -1096,7 +1104,7 @@ body.login-page .auth-container {
 body.login-page .geo {
   width: 360px;
   height: 300px;
-  position: fixed;
+  position: absolute;
   overflow: visible;
   z-index: 0;
 }
@@ -4419,3 +4427,821 @@ button:disabled {
     opacity: 1;
 }
 
+/* =====================================================
+   ADMIN DASHBOARD — PREMIUM CORPORATE REDESIGN
+   CSS ONLY — tidak mengubah logika aplikasi
+   ===================================================== */
+
+body.admin-page {
+    --admin-navy: #10264a;
+    --admin-blue: #2563eb;
+    --admin-blue-light: #eff6ff;
+    --admin-text: #172b4d;
+    --admin-muted: #718096;
+    --admin-border: #e2eaf5;
+
+    color: var(--admin-text);
+    background:
+        radial-gradient(
+            circle at 90% 0%,
+            rgba(96, 165, 250, 0.15),
+            transparent 28rem
+        ),
+        linear-gradient(145deg, #f4f7fc 0%, #edf3fb 100%);
+    min-height: 100vh;
+}
+
+/* Area utama dashboard */
+body.admin-page .admin-layout {
+    min-height: 100vh;
+    background: transparent;
+}
+
+/* Sidebar premium */
+body.admin-page .admin-sidebar {
+    background:
+        radial-gradient(
+            circle at 0% 0%,
+            rgba(59, 130, 246, 0.22),
+            transparent 230px
+        ),
+        linear-gradient(180deg, #102344 0%, #142f59 60%, #0d2040 100%);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 8px 0 32px rgba(15, 35, 70, 0.12);
+    padding: 26px 17px;
+}
+
+/* Nama aplikasi di sidebar */
+body.admin-page .admin-sidebar h2 {
+    font-size: 21px;
+    font-weight: 800;
+    line-height: 1.5;
+    letter-spacing: 0.4px;
+    padding: 0 12px 25px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Menu sidebar */
+body.admin-page .admin-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+body.admin-page .admin-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 46px;
+    padding: 12px 15px;
+    color: #cbd8ec;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+        background 0.22s ease,
+        color 0.22s ease,
+        transform 0.22s ease,
+        border-color 0.22s ease;
+}
+
+body.admin-page .admin-nav a:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.08);
+    transform: translateX(3px);
+}
+
+body.admin-page .admin-nav a.active {
+    color: #ffffff;
+    background: linear-gradient(110deg, #2563eb, #4388f5);
+    border-color: rgba(191, 219, 254, 0.35);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+    font-weight: 700;
+}
+
+/* Tombol logout */
+body.admin-page #adminLogout {
+    margin-top: auto;
+    border-radius: 11px;
+    transition: all 0.2s ease;
+}
+
+body.admin-page #adminLogout:hover {
+    filter: brightness(1.08);
+    transform: translateY(-1px);
+}
+
+/* Konten utama */
+body.admin-page .admin-content {
+    min-width: 0;
+    padding: 30px;
+}
+
+/* Header dashboard */
+body.admin-page .admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 28px 30px;
+    margin-bottom: 28px;
+    overflow: hidden;
+    position: relative;
+    isolation: isolate;
+    border: 1px solid #dce7f6;
+    border-left: 5px solid #2563eb;
+    border-radius: 20px;
+    background:
+        radial-gradient(
+            circle at 100% 0%,
+            rgba(96, 165, 250, 0.22),
+            transparent 260px
+        ),
+        linear-gradient(120deg, #ffffff 0%, #f4f8ff 100%);
+    box-shadow: 0 12px 30px rgba(28, 57, 100, 0.07);
+}
+
+body.admin-page .admin-header h1 {
+    color: #102c54;
+    font-size: clamp(23px, 2.2vw, 31px);
+    font-weight: 800;
+    letter-spacing: -0.7px;
+    line-height: 1.3;
+    margin: 0;
+}
+
+body.admin-page .admin-header p {
+    color: #718096;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-top: 8px;
+}
+
+/* Semua panel dashboard */
+body.admin-page .admin-section {
+    min-width: 0;
+    padding: 27px;
+    margin-bottom: 25px;
+    border: 1px solid rgba(218, 229, 244, 0.95);
+    border-top: 3px solid #3b82f6;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 8px 26px rgba(24, 49, 83, 0.055);
+    transition:
+        box-shadow 0.22s ease,
+        border-color 0.22s ease;
+}
+
+body.admin-page .admin-section:hover {
+    box-shadow: 0 13px 32px rgba(24, 49, 83, 0.085);
+    border-color: #d3e1f3;
+}
+
+body.admin-page .admin-section h2 {
+    color: #183b6b;
+    font-size: 19px;
+    font-weight: 750;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #edf1f7;
+}
+
+/* Grid kartu statistik */
+body.admin-page .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 19px;
+    margin-bottom: 28px;
+}
+
+/* Kartu statistik */
+body.admin-page .admin-stat-card {
+    position: relative;
+    min-width: 0;
+    min-height: 150px;
+    padding: 24px;
+    overflow: hidden;
+    isolation: isolate;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 18px;
+    box-shadow: 0 10px 24px rgba(28, 57, 100, 0.10);
+    transition:
+        transform 0.24s ease,
+        box-shadow 0.24s ease;
+}
+
+body.admin-page .admin-stat-card::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    width: 125px;
+    height: 125px;
+    right: -36px;
+    bottom: -54px;
+    border: 22px solid rgba(255, 255, 255, 0.13);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+body.admin-page .admin-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 17px 30px rgba(28, 57, 100, 0.16);
+}
+
+body.admin-page .admin-stat-card:nth-child(1) {
+    background: linear-gradient(135deg, #1d4ed8, #60a5fa);
+}
+
+body.admin-page .admin-stat-card:nth-child(2) {
+    background: linear-gradient(135deg, #047857, #34d399);
+}
+
+body.admin-page .admin-stat-card:nth-child(3) {
+    background: linear-gradient(135deg, #b45309, #fbbf24);
+}
+
+body.admin-page .admin-stat-card:nth-child(4) {
+    background: linear-gradient(135deg, #6d28d9, #a78bfa);
+}
+
+body.admin-page .admin-stat-card h2,
+body.admin-page .admin-stat-card h3 {
+    position: relative;
+    z-index: 1;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 650;
+    line-height: 1.6;
+    margin: 0 0 12px;
+    padding: 0;
+    border: 0;
+}
+
+body.admin-page .admin-stat-card p {
+    position: relative;
+    z-index: 1;
+    color: #ffffff;
+    font-size: clamp(28px, 3vw, 37px);
+    font-weight: 850;
+    line-height: 1.2;
+    letter-spacing: -1px;
+    margin: 0;
+}
+
+/* Form admin */
+body.admin-page .admin-section input,
+body.admin-page .admin-section select,
+body.admin-page .admin-section textarea {
+    width: 100%;
+    max-width: 100%;
+    color: #243b5a;
+    background: #f8faff;
+    border: 1px solid #dce5f1;
+    border-radius: 10px;
+    padding: 11px 13px;
+    font-size: 13.5px;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+body.admin-page .admin-section input:hover,
+body.admin-page .admin-section select:hover,
+body.admin-page .admin-section textarea:hover {
+    border-color: #b8cbed;
+}
+
+body.admin-page .admin-section input:focus,
+body.admin-page .admin-section select:focus,
+body.admin-page .admin-section textarea:focus {
+    outline: none;
+    background: #ffffff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.11);
+}
+
+/* Tombol admin */
+body.admin-page .admin-section button,
+body.admin-page .admin-header button {
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 650;
+    cursor: pointer;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+}
+
+body.admin-page .admin-section button:hover,
+body.admin-page .admin-header button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 7px 15px rgba(37, 99, 235, 0.16);
+    filter: brightness(1.03);
+}
+
+/* Pembungkus tabel */
+body.admin-page .admin-table-wrapper {
+    max-width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e0e8f3;
+    border-radius: 13px;
+    background: #ffffff;
+    box-shadow: 0 5px 16px rgba(28, 57, 100, 0.035);
+}
+
+/* Tabel */
+body.admin-page .admin-table-wrapper table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+body.admin-page .admin-table-wrapper th {
+    padding: 15px 16px;
+    color: #ffffff;
+    background: linear-gradient(110deg, #173968, #2862a8);
+    border: 0;
+    border-bottom: 1px solid #d8e4f4;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+    white-space: nowrap;
+}
+
+body.admin-page .admin-table-wrapper td {
+    padding: 14px 16px;
+    color: #3c506b;
+    border: 0;
+    border-bottom: 1px solid #edf1f7;
+    font-size: 13px;
+    line-height: 1.6;
+    vertical-align: middle;
+}
+
+body.admin-page .admin-table-wrapper tbody tr {
+    transition: background 0.16s ease;
+}
+
+body.admin-page .admin-table-wrapper tbody tr:nth-child(even) {
+    background: #f8faff;
+}
+
+body.admin-page .admin-table-wrapper tbody tr:hover {
+    background: #edf5ff;
+}
+
+body.admin-page .admin-table-wrapper tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+/* Perbaikan jarak antarbagian */
+body.admin-page .admin-section > *:first-child {
+    margin-top: 0;
+}
+
+body.admin-page .admin-section p {
+    color: #6b7c93;
+    line-height: 1.7;
+}
+
+/* Fokus keyboard */
+body.admin-page .admin-nav a:focus-visible,
+body.admin-page button:focus-visible,
+body.admin-page input:focus-visible,
+body.admin-page select:focus-visible,
+body.admin-page textarea:focus-visible {
+    outline: 3px solid rgba(59, 130, 246, 0.45);
+    outline-offset: 3px;
+}
+
+/* Tablet */
+@media (max-width: 1100px) {
+    body.admin-page .admin-content {
+        padding: 22px;
+    }
+
+    body.admin-page .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    body.admin-page .admin-section {
+        padding: 22px;
+    }
+}
+
+/* Ponsel */
+@media (max-width: 700px) {
+    body.admin-page .admin-content {
+        padding: 14px;
+    }
+
+    body.admin-page .admin-header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 22px;
+        border-radius: 16px;
+    }
+
+    body.admin-page .admin-header h1 {
+        font-size: 24px;
+    }
+
+    body.admin-page .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    body.admin-page .admin-stat-card {
+        min-height: 125px;
+        padding: 17px;
+        border-radius: 15px;
+    }
+
+    body.admin-page .admin-stat-card p {
+        font-size: 28px;
+    }
+
+    body.admin-page .admin-section {
+        padding: 17px;
+        margin-bottom: 17px;
+        border-radius: 15px;
+    }
+
+    body.admin-page .admin-section h2 {
+        font-size: 17px;
+    }
+
+    body.admin-page .admin-table-wrapper th,
+    body.admin-page .admin-table-wrapper td {
+        padding: 11px 12px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 380px) {
+    body.admin-page .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Hormati preferensi mengurangi animasi */
+@media (prefers-reduced-motion: reduce) {
+    body.admin-page *,
+    body.admin-page *::before,
+    body.admin-page *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+
+/* ==========================================
+   ADMIN DASHBOARD — COLORFUL PREMIUM THEME
+   ========================================== */
+
+body.admin-page {
+    background: #eaf0fb !important;
+    color: #243654;
+}
+
+/* Background halaman dengan gradasi lembut */
+body.admin-page .admin-layout {
+    background:
+        radial-gradient(ellipse at 85% 5%,
+            rgba(91, 141, 239, 0.20), transparent 32%),
+        radial-gradient(ellipse at 15% 85%,
+            rgba(115, 196, 205, 0.15), transparent 35%),
+        linear-gradient(135deg, #edf3ff 0%, #e8eef9 50%, #f2f5fc 100%) !important;
+}
+
+/* Area konten transparan agar background terlihat */
+body.admin-page .admin-content,
+body.admin-page .admin-content .container {
+    background: transparent !important;
+}
+
+/* Navbar lebih elegan */
+body.admin-page .admin-content .navbar {
+    background: linear-gradient(100deg, #ffffff, #f2f6ff) !important;
+    border-bottom: 1px solid #dce6f6;
+    box-shadow: 0 5px 20px rgba(36, 65, 112, 0.07);
+}
+
+/* Judul halaman */
+body.admin-page #judulHalaman {
+    color: #173e7a !important;
+    font-weight: 800;
+    letter-spacing: -0.4px;
+}
+
+/* Card umum: aksen biru di bagian atas */
+body.admin-page .admin-halaman > .card {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(145deg, #ffffff 0%, #f9fbff 100%) !important;
+    border: 1px solid #dce7f7 !important;
+    border-top: 5px solid #3978ed !important;
+    border-radius: 18px !important;
+    box-shadow: 0 12px 30px rgba(38, 72, 125, 0.09) !important;
+    padding: 28px;
+    margin-bottom: 26px;
+}
+
+/* Judul card */
+body.admin-page .admin-halaman > .card > h2 {
+    color: #1b4786 !important;
+    font-weight: 800;
+    margin-bottom: 16px;
+}
+
+/* Garis aksen pada judul card */
+body.admin-page .admin-halaman > .card > h2::before {
+    content: "";
+    display: inline-block;
+    width: 5px;
+    height: 25px;
+    margin-right: 12px;
+    vertical-align: -5px;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #3478f6, #65b5ff);
+}
+
+/* Card Ringkasan Data */
+body.admin-page #halaman-dashboard > .card:nth-child(2) {
+    background: linear-gradient(135deg, #e5efff 0%, #f4f8ff 55%, #e9f5ff 100%) !important;
+    border: 1px solid #c9dcfa !important;
+    border-top: 5px solid #4b7cf3 !important;
+}
+
+/* Kartu angka statistik */
+body.admin-page #halaman-dashboard .form-grid > .card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.8) !important;
+    border-radius: 16px !important;
+    padding: 22px !important;
+    box-shadow: 0 8px 20px rgba(35, 68, 120, 0.10) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Aksen dekoratif pada kartu statistik */
+body.admin-page #halaman-dashboard .form-grid > .card::after {
+    content: "";
+    position: absolute;
+    width: 85px;
+    height: 85px;
+    right: -25px;
+    bottom: -30px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.28);
+    pointer-events: none;
+}
+
+body.admin-page #halaman-dashboard .form-grid > .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 13px 25px rgba(35, 68, 120, 0.16) !important;
+}
+
+/* Total siswa — biru */
+body.admin-page #halaman-dashboard .form-grid > .card:nth-child(1) {
+    background: linear-gradient(135deg, #3478f6, #5a9bff) !important;
+}
+
+/* Total pembimbing — hijau toska */
+body.admin-page #halaman-dashboard .form-grid > .card:nth-child(2) {
+    background: linear-gradient(135deg, #0e9f91, #39c6b0) !important;
+}
+
+/* Total tugas — ungu */
+body.admin-page #halaman-dashboard .form-grid > .card:nth-child(3) {
+    background: linear-gradient(135deg, #7655df, #a28af8) !important;
+}
+
+/* Tugas selesai — jingga */
+body.admin-page #halaman-dashboard .form-grid > .card:nth-child(4) {
+    background: linear-gradient(135deg, #e58a27, #f5b84d) !important;
+}
+
+/* Teks kartu statistik */
+body.admin-page #halaman-dashboard .form-grid > .card h3,
+body.admin-page #halaman-dashboard .form-grid > .card h2 {
+    position: relative;
+    z-index: 1;
+    color: #ffffff !important;
+}
+
+body.admin-page #halaman-dashboard .form-grid > .card h3 {
+    font-size: 15px;
+    font-weight: 650;
+}
+
+body.admin-page #halaman-dashboard .form-grid > .card h2 {
+    font-size: 32px;
+    margin-top: 12px;
+}
+
+/* Tabel lebih halus */
+body.admin-page .admin-halaman table.table thead th {
+    background: linear-gradient(135deg, #dce9fb, #e8f0fc) !important;
+    color: #244b7c !important;
+    border-color: #cbdaf0 !important;
+}
+
+body.admin-page .admin-halaman table.table tbody td {
+    background: #ffffff !important;
+    color: #344761 !important;
+    border-color: #e4ebf5 !important;
+}
+
+body.admin-page .admin-halaman table.table tbody tr:hover td {
+    background: #f0f6ff !important;
+}
+
+/* Sidebar tetap senada */
+body.admin-page .admin-sidebar {
+    background: linear-gradient(180deg, #101b35, #1a3763 70%, #234a78) !important;
+}
+
+/* Responsif */
+@media (max-width: 768px) {
+    body.admin-page .admin-halaman > .card {
+        padding: 18px;
+        border-radius: 14px !important;
+    }
+
+    body.admin-page #halaman-dashboard .form-grid > .card h2 {
+        font-size: 26px;
+    }
+}
+
+/* Navbar admin: gradasi biru elegan */
+body.admin-page .admin-content .navbar {
+    background: linear-gradient(
+        110deg,
+        #173568 0%,
+        #2456a6 55%,
+        #3978d8 100%
+    ) !important;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 6px 22px rgba(23, 53, 104, 0.22);
+}
+
+/* Judul halaman navbar */
+body.admin-page .admin-content .navbar #judulHalaman {
+    color: #ffffff !important;
+    font-weight: 800;
+}
+
+/* Nama admin */
+body.admin-page .admin-content .navbar #adminNama {
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
+/* Jam dan tanggal */
+body.admin-page .admin-content .navbar .realtime-clock,
+body.admin-page .admin-content .navbar #clock-time,
+body.admin-page .admin-content .navbar #clock-date {
+    color: #e6efff !important;
+}
+
+/* Rapikan garis pemisah navbar */
+body.admin-page .admin-content .navbar {
+    border-radius: 0;
+}
+/* ==========================================
+   MIDNIGHT BLUE + GOLD + LIGHT BLUE
+   PROFESSIONAL GEOMETRIC BACKGROUND
+   ========================================== */
+
+body.admin-page .admin-layout {
+    position: relative;
+    isolation: isolate;
+
+    background:
+        radial-gradient(
+            circle at 8% 12%,
+            rgba(16, 42, 86, 0.32),
+            transparent 34%
+        ),
+        radial-gradient(
+            circle at 92% 18%,
+            rgba(245, 184, 46, 0.28),
+            transparent 27%
+        ),
+        radial-gradient(
+            circle at 78% 88%,
+            rgba(23, 70, 200, 0.22),
+            transparent 30%
+        ),
+        linear-gradient(
+            130deg,
+            #C5DCFF 0%,
+            #E7F0FF 52%,
+            #D5E5FF 100%
+        ) !important;
+}
+
+/* Konten transparan agar latar terlihat */
+body.admin-page .admin-content,
+body.admin-page .admin-content .container {
+    background: transparent !important;
+}
+
+/* Dekorasi geometris */
+body.admin-page .admin-layout::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    background-image:
+        /* Lingkaran */
+        radial-gradient(circle, #102A56 0 29px, transparent 30px),
+        radial-gradient(circle, #F5B82E 0 18px, transparent 19px),
+        radial-gradient(circle, #1746C8 0 13px, transparent 14px),
+
+        /* Kotak */
+        linear-gradient(#102A56, #102A56),
+        linear-gradient(#F5B82E, #F5B82E),
+        linear-gradient(#1746C8, #1746C8),
+        linear-gradient(#102A56, #102A56),
+
+        /* Segitiga */
+        conic-gradient(
+            from 150deg,
+            transparent 0 60deg,
+            #102A56 60deg 120deg,
+            transparent 120deg
+        ),
+        conic-gradient(
+            from 150deg,
+            transparent 0 60deg,
+            #F5B82E 60deg 120deg,
+            transparent 120deg
+        ),
+        conic-gradient(
+            from 150deg,
+            transparent 0 60deg,
+            #1746C8 60deg 120deg,
+            transparent 120deg
+        );
+
+    background-size:
+        60px 60px,
+        38px 38px,
+        26px 26px,
+        40px 40px,
+        28px 28px,
+        22px 22px,
+        18px 18px,
+        56px 56px,
+        46px 46px,
+        40px 40px;
+
+    background-position:
+        5% 12%,
+        44% 12%,
+        63% 72%,
+        92% 15%,
+        79% 38%,
+        7% 67%,
+        57% 86%,
+        95% 54%,
+        18% 83%,
+        70% 17%;
+
+    background-repeat: no-repeat;
+}
+
+/* Card tetap putih */
+body.admin-page .admin-halaman > .card,
+body.admin-page #halaman-dashboard .form-grid > .card {
+    background: #FFFFFF !important;
+    border: 1px solid #C4D7F2 !important;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(16, 42, 86, 0.14) !important;
+}
+/* Perbaikan background halaman login */
+html {
+  min-height: 100%;
+  background-color: #eaf6fc;
+}
+
+body.login-page {
+  min-height: 100vh;
+  background-color: #eaf6fc;
+}

@@ -76,7 +76,8 @@ def check_student_pkl_period(student: Student):
         )
 
 
-@router.patch("/{task_id}", response_model=TaskOut)
+
+
 
 @router.patch("/{task_id}", response_model=TaskOut)
 def update_task(
@@ -93,20 +94,61 @@ def update_task(
             detail="Tugas tidak ditemukan"
         )
 
-    if current_user.role == "siswa":
-     student = db.get(Student, current_user.student_id)
-
-    if not student:
-        raise HTTPException(
-            status_code=404,
-            detail="Data siswa tidak ditemukan."
-        )
-
-    check_student_pkl_period(student)
-
     updates = payload.model_dump(exclude_unset=True)
 
-    # Cek perubahan status progress
+    if current_user.role == "siswa":
+        if task.id_siswa != current_user.student_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Kamu tidak dapat mengubah tugas siswa lain."
+            )
+
+        student = db.get(Student, current_user.student_id)
+
+        if not student:
+            raise HTTPException(
+                status_code=404,
+                detail="Data siswa tidak ditemukan."
+            )
+
+        check_student_pkl_period(student)
+
+        # Siswa tidak boleh mengubah status revisi milik pembimbing.
+        if "status" in updates:
+            raise HTTPException(
+                status_code=403,
+                detail="Status revisi hanya dapat diubah oleh pembimbing."
+            )
+
+        # Tugas selesai terkunci sampai pembimbing meminta revisi.
+        if task.status_progress == "selesai":
+            raise HTTPException(
+                status_code=403,
+                detail="Tugas sudah selesai. Tunggu keputusan pembimbing."
+            )
+
+       
+        # Siswa hanya boleh mengubah progres.
+        if any(key != "status_progress" for key in updates):
+            raise HTTPException(
+                status_code=403,
+                detail="Siswa hanya dapat mengubah progres tugas."
+            )
+
+    elif current_user.role == "pembimbing":
+        if task.id_pembimbing != current_user.supervisor_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Kamu tidak dapat mengubah tugas pembimbing lain."
+            )
+
+    else:
+        raise HTTPException(
+            status_code=403,
+            detail="Kamu tidak memiliki izin untuk mengubah tugas."
+        )
+
+
     if "status_progress" in updates:
         current_progress = task.status_progress or "pending"
         new_progress = updates["status_progress"]
@@ -117,31 +159,30 @@ def update_task(
             "selesai": 2
         }
 
-        if current_progress not in urutan:
-            raise HTTPException(
-                status_code=400,
-                detail="Status progress saat ini tidak valid"
-            )
-
         if new_progress not in urutan:
             raise HTTPException(
                 status_code=400,
-                detail="Status progress tidak valid"
+                detail="Status progres tidak valid."
             )
 
-        # Progress hanya boleh maju satu tahap
-        if urutan[new_progress] != urutan[current_progress] + 1:
-            raise HTTPException(
-                status_code=400,
-                detail="Progress harus berurutan: Belum Mulai → Sedang Dikerjakan → Selesai"
-            )
+        # Progres siswa hanya boleh maju satu tahap.
+        if current_user.role == "siswa":
+            if current_progress not in urutan:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Status progres saat ini tidak valid."
+                )
 
-        # Saat tugas mulai dikerjakan
+            if urutan[new_progress] != urutan[current_progress] + 1:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Progres harus berurutan: Belum Mulai → Sedang Dikerjakan → Selesai."
+                )
+
         if new_progress == "proses" and task.startTugas is None:
             wib = timezone(timedelta(hours=7))
             task.startTugas = datetime.now(wib).replace(tzinfo=None)
 
-    # Terapkan perubahan
     for key, value in updates.items():
         setattr(task, key, value)
 
@@ -149,6 +190,51 @@ def update_task(
     db.refresh(task)
 
     return task
+
+
+@router.post("/{task_id}/revisi", response_model=TaskOut)
+def request_task_revision(
+    task_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    if current_user.role != "pembimbing":
+        raise HTTPException(
+            status_code=403,
+            detail="Hanya pembimbing yang dapat meminta revisi."
+        )
+
+    task = db.get(Task, task_id)
+
+    if not task:
+        raise HTTPException(
+            status_code=404,
+            detail="Tugas tidak ditemukan."
+        )
+
+    if task.id_pembimbing != current_user.supervisor_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Kamu tidak dapat meminta revisi tugas pembimbing lain."
+        )
+
+    if task.status_progress != "selesai":
+        raise HTTPException(
+            status_code=400,
+            detail="Revisi hanya dapat diminta untuk tugas yang sudah selesai."
+        )
+
+    task.status = "revisi"
+    task.status_progress = "proses"
+
+    db.commit()
+    db.refresh(task)
+
+    return task
+
+
+
+
 
 @router.delete("/{task_id}")
 def delete_task(

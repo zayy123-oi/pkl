@@ -298,6 +298,19 @@ def create_attendance(
                 "allowed_radius_meter": location.radius_meter,
             },
         )
+    
+    # Tentukan status terlambat berdasarkan waktu server Jakarta.
+    final_status = payload.status
+
+    if (
+        payload.attendance_type == "masuk"
+        and payload.status == "hadir"
+    ):
+        waktu_sekarang = datetime.now(ZoneInfo("Asia/Jakarta"))
+
+        if waktu_sekarang.hour >= 9:
+            final_status = "terlambat"
+
 
 
 
@@ -308,7 +321,7 @@ def create_attendance(
         attendance_date=attendance_time.date(),
         attendance_type=payload.attendance_type,
         attendance_time=attendance_time,
-        status=payload.status,
+        status=final_status,
         note=payload.note,
         ip_address=data["ip_address"],
         user_agent=data["user_agent"],
