@@ -1,0 +1,16 @@
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+backend/.env
+frontend/.env
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Local development
+.vscode/
