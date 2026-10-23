@@ -1,5 +1,5 @@
 // Base URL Backend FastAPI (Sudah ditambahkan /api)
-const API_BASE_URL = "http://127.0.0.1:8000/api";
+const API_BASE_URL = "/api";
 // Helper untuk mengambil token JWT dari LocalStorage
 function getToken() {
   return localStorage.getItem("access_token") || sessionStorage.getItem("access_token");
