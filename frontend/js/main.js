@@ -734,6 +734,199 @@ function showKonfirmasiNonaktif(namaSiswa) {
   });
 }
 
+function showKonfirmasiRevisi() {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+
+    overlay.className = "konfirmasi-revisi-overlay";
+    overlay.style.cssText = `
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      padding: 20px;
+    `;
+
+    overlay.innerHTML = `
+      <div style="
+        background: white;
+        color: #222;
+        width: 100%;
+        max-width: 400px;
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      ">
+        <h3 style="margin: 0 0 12px; font-size: 20px;">
+          Minta Revisi Tugas
+        </h3>
+
+        <p style="margin: 0 0 24px; line-height: 1.6;">
+          Apakah kamu yakin ingin meminta revisi tugas ini?
+        </p>
+
+        <div style="
+          display: flex;
+          justify-content: flex-end;
+          gap: 10px;
+        ">
+          <button type="button" class="btn-batal-revisi" style="
+            padding: 10px 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+          ">Batal</button>
+
+          <button type="button" class="btn-setuju-revisi" style="
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+          ">Ya, Lanjutkan</button>
+        </div>
+      </div>
+    `;
+
+    function tutup(hasil) {
+      overlay.remove();
+      resolve(hasil);
+    }
+
+    overlay.querySelector(".btn-batal-revisi")
+      .addEventListener("click", () => tutup(false));
+
+    overlay.querySelector(".btn-setuju-revisi")
+      .addEventListener("click", () => tutup(true));
+
+    document.body.appendChild(overlay);
+  });
+}
+
+function showKonfirmasiSertifikat() {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+
+    overlay.style.cssText = `
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      padding: 20px;
+    `;
+
+    overlay.innerHTML = `
+      <div style="
+        background: white;
+        color: #1f2937;
+        width: 100%;
+        max-width: 420px;
+        padding: 26px;
+        border-radius: 14px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+      ">
+        <div style="
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 16px;
+        ">
+          <div style="
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #dcfce7;
+            color: #15803d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 23px;
+            font-weight: bold;
+          ">✓</div>
+
+          <h3 style="margin: 0; font-size: 20px;">
+            Setujui Sertifikat
+          </h3>
+        </div>
+
+        <p style="
+          line-height: 1.6;
+          margin: 0 0 24px;
+          color: #4b5563;
+        ">
+          Apakah kamu yakin ingin menyetujui sertifikat siswa ini?
+        </p>
+
+        <div style="
+          display: flex;
+          justify-content: flex-end;
+          gap: 10px;
+        ">
+          <button type="button" class="btn-batal-sertifikat" style="
+            padding: 10px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: white;
+            color: #374151;
+            cursor: pointer;
+          ">Batal</button>
+
+          <button type="button" class="btn-setuju-sertifikat" style="
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #15803d;
+            color: white;
+            cursor: pointer;
+          ">Ya, Setujui</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    let selesai = false;
+
+    function tutup(hasil) {
+      if (selesai) return;
+
+      selesai = true;
+      document.removeEventListener("keydown", tombolEscape);
+      overlay.remove();
+      resolve(hasil);
+    }
+
+    function tombolEscape(e) {
+      if (e.key === "Escape") {
+        tutup(false);
+      }
+    }
+
+    overlay.querySelector(".btn-batal-sertifikat")
+      .addEventListener("click", () => tutup(false));
+
+    overlay.querySelector(".btn-setuju-sertifikat")
+      .addEventListener("click", () => tutup(true));
+
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) {
+        tutup(false);
+      }
+    });
+
+    document.addEventListener("keydown", tombolEscape);
+  });
+}
+
 
 async function renderPembimbing() {
   const user = getSessionUser();
@@ -1248,9 +1441,9 @@ function showKomentarModal() {
 }
 
 window.mintaRevisiTugas = async function(taskId) {
-  const yakin = confirm(
-    "Apakah kamu yakin ingin meminta revisi tugas ini?"
-  );
+  const yakin = await showKonfirmasiRevisi();
+
+if (!yakin) return;
 
   if (!yakin) return;
 
@@ -2145,9 +2338,7 @@ const hariBerjalan = periodeValid && tanggalMulai <= sekarang
 // Selama PKL berlangsung, gunakan hari yang sudah berjalan.
 
 
-const hariUntukNilai = periodeBerakhir
-  ? seluruhHariPKL
-  : hariBerjalan;
+const hariUntukNilai = seluruhHariPKL;
 
 
 // Ambil absensi masuk per tanggal.
@@ -2343,22 +2534,24 @@ document.addEventListener("click", async function (e) {
   if (!idSiswa) return;
 
   if (aksi === "approve") {
-    const yakin = confirm(
-      "Apakah kamu yakin ingin menyetujui sertifikat siswa ini?"
-    );
+  const yakin = await showKonfirmasiSertifikat();
 
-    if (!yakin) return;
+  if (!yakin) return;
 
-    localStorage.setItem(
-      `sertifikat_pkl_disetujui_${idSiswa}`,
-      "true"
-    );
+  localStorage.setItem(
+    `sertifikat_pkl_disetujui_${idSiswa}`,
+    "true"
+  );
 
-    alert("Sertifikat berhasil disetujui.");
+  showAttendancePopup(
+    "success",
+    "Sertifikat Disetujui",
+    "Sertifikat siswa berhasil disetujui oleh admin."
+  );
 
-    await renderSertifikatAdmin();
-    return;
-  }
+  await renderSertifikatAdmin();
+  return;
+}
 
   if (aksi === "print") {
     const nama = tombol.dataset.name || "Siswa";
