@@ -925,6 +925,23 @@ if (selectSiswaPkl) {
   
     // Dropdown siswa untuk pemberian tugas.
     const selectSiswaTugas = document.getElementById("siswaTugas");
+    
+    // Dropdown siswa untuk penilaian sertifikat PKL.
+    const selectSiswaPenilaian = document.getElementById("siswaPenilaian");
+
+    if (selectSiswaPenilaian) {
+      const siswaPenilaian = await Api.students(true);
+
+      selectSiswaPenilaian.innerHTML = `
+        <option value="">-- Pilih Siswa --</option>
+        ${(siswaPenilaian || []).map(student => `
+          <option value="${student.id}">
+            ${student.nama || student.name || "-"}
+          </option>
+        `).join("")}
+      `;
+    }
+
 
     if (selectSiswaTugas) {
       const students = await Api.students(true);
@@ -1360,6 +1377,95 @@ if (!siswaId) {
   });
 }
 
+
+const formPenilaianSertifikat = document.getElementById(
+  "formPenilaianSertifikat"
+);
+
+if (formPenilaianSertifikat) {
+  formPenilaianSertifikat.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const siswaId = document.getElementById("siswaPenilaian").value;
+
+    if (!siswaId) {
+      alert("Silakan pilih siswa terlebih dahulu.");
+      return;
+    }
+
+    const nilaiDisiplin = Number(
+      document.getElementById("nilaiDisiplin").value
+    );
+    const nilaiAdaptasi = Number(
+      document.getElementById("nilaiAdaptasi").value
+    );
+    const nilaiKualitas = Number(
+      document.getElementById("nilaiKualitas").value
+    );
+    const nilaiKomunikasi = Number(
+      document.getElementById("nilaiKomunikasi").value
+    );
+    const nilaiInisiatif = Number(
+      document.getElementById("nilaiInisiatif").value
+    );
+
+    const nilai = [
+      nilaiDisiplin,
+      nilaiAdaptasi,
+      nilaiKualitas,
+      nilaiKomunikasi,
+      nilaiInisiatif
+    ];
+
+    if (nilai.some(n => !Number.isFinite(n) || n < 0 || n > 100)) {
+      alert("Semua nilai harus di antara 0 sampai 100.");
+      return;
+    }
+
+    const token = localStorage.getItem("access_token");
+
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/mentors/students/${siswaId}/certificate-assessment`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            disiplin_tanggung_jawab: nilaiDisiplin,
+            kemampuan_adaptasi: nilaiAdaptasi,
+            kualitas_hasil_kerja: nilaiKualitas,
+            komunikasi_kerja_sama: nilaiKomunikasi,
+            inisiatif_etika: nilaiInisiatif,
+            catatan: document.getElementById("catatanPenilaian").value.trim() || null
+          })
+        }
+      );
+
+      const hasil = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(
+          hasil.detail || `Gagal menyimpan penilaian (${response.status}).`
+        );
+      }
+
+      showAttendancePopup(
+        "success",
+        "Penilaian Berhasil",
+        "Nilai pembimbing berhasil disimpan."
+      );
+
+      formPenilaianSertifikat.reset();
+    } catch (error) {
+      showError(error);
+    }
+  });
+}
+
+
  // Page guards + initial load
 (async function initPage() {
   const path = window.location.pathname;
@@ -1561,18 +1667,18 @@ async function renderStatistikAbsensiDashboard() {
     `;
 
     try {
-        const [hasilAbsensi, hasilSiswa] = await Promise.all([
-            ambilSemuaAbsensi(),
-            Api.students(false)
-        ]);
+       const [hasilAbsensi, hasilSiswa] = await Promise.all([
+    ambilSemuaAbsensi(),
+    Api.students(false)
+]);
 
-        const daftarAbsensi = Array.isArray(hasilAbsensi)
-            ? hasilAbsensi
-            : [];
+const daftarAbsensi = Array.isArray(hasilAbsensi)
+    ? hasilAbsensi
+    : [];
 
-        const daftarSiswa = Array.isArray(hasilSiswa)
-            ? hasilSiswa
-            : [];
+const daftarSiswa = Array.isArray(hasilSiswa)
+    ? hasilSiswa
+    : [];
 
         const statistik = daftarSiswa.map(siswa => ({
             id: Number(siswa.id),
@@ -1680,15 +1786,14 @@ async function renderRekapAbsensiAdmin() {
     `;
 
     try {
-        const [daftarAbsensi, daftarSiswaRaw] = await Promise.all([
-            ambilSemuaAbsensi(),
-            Api.students(false)
-        ]);
+      const [daftarAbsensi, hasilSiswa] = await Promise.all([
+    ambilSemuaAbsensi(),
+    Api.students(false)
+]);
 
-        const daftarSiswa = Array.isArray(daftarSiswaRaw)
-            ? daftarSiswaRaw
-            : [];
-
+const daftarSiswa = Array.isArray(hasilSiswa)
+    ? hasilSiswa
+    : [];
         // Isi pilihan nama siswa.
         if (filterNama) {
             const pilihanLama = filterNama.value;
@@ -2040,7 +2145,9 @@ const hariBerjalan = periodeValid && tanggalMulai <= sekarang
 // Selama PKL berlangsung, gunakan hari yang sudah berjalan.
 
 
-const hariUntukNilai = seluruhHariPKL;
+const hariUntukNilai = periodeBerakhir
+  ? seluruhHariPKL
+  : hariBerjalan;
 
 
 // Ambil absensi masuk per tanggal.
@@ -2192,6 +2299,7 @@ const nilaiKehadiran =
               data-student-id="${idSiswa}">
               Periksa &amp; Setujui
             </button>`
+          
           : `<button
               type="button"
               data-action="print"
@@ -2206,19 +2314,20 @@ const nilaiKehadiran =
               data-kualitas="${nilaiKualitas}"
               data-komunikasi="${nilaiKomunikasi}"
               data-inisiatif="${nilaiInisiatif}"
-              data-final="${nilaiAkhir}"
+              data-final="${nilaiAkhir}">
               Cetak Sertifikat
             </button>`
   }
 </td>
         </tr>
       `;
-    }).join("") || `<tr><td colspan="8">Belum ada data siswa.</td></tr>`;
+
+    }).join("") || `<tr><td colspan="13">Belum ada data siswa.</td></tr>`;
 
   } catch (error) {
     console.error("Gagal memuat sertifikat:", error);
     tbody.innerHTML = `
-      <tr><td colspan="8">Gagal memuat data. Periksa koneksi backend.</td></tr>
+      <tr><td colspan="13">Gagal memuat data. Periksa koneksi backend.</td></tr>
     `;
   }
 }
@@ -2326,18 +2435,17 @@ document.addEventListener("click", async function (e) {
             pada periode ${mulai} sampai ${selesai}.
           </p>
 
-          <
-<div class="nilai">
-    Nilai Kehadiran: ${kehadiran}<br>
-    Nilai Penyelesaian Tugas: ${tugas}<br>
-    Disiplin dan Tanggung Jawab: ${disiplin}<br>
-    Kemampuan Kerja dan Adaptasi Operasional: ${adaptasi}<br>
-    Kualitas dan Ketepatan Hasil Kerja: ${kualitas}<br>
-    Komunikasi dan Kerja Sama Tim: ${komunikasi}<br>
-    Inisiatif dan Etika Kerja: ${inisiatif}<br>
-    <strong>Nilai Akhir: ${nilaiAkhir}</strong>
-</div>
->
+          
+          <div class="nilai">
+            Nilai Kehadiran: ${kehadiran}<br>
+            Nilai Penyelesaian Tugas: ${tugas}<br>
+            Disiplin dan Tanggung Jawab: ${disiplin}<br>
+            Kemampuan Kerja dan Adaptasi Operasional: ${adaptasi}<br>
+            Kualitas dan Ketepatan Hasil Kerja: ${kualitas}<br>
+            Komunikasi dan Kerja Sama Tim: ${komunikasi}<br>
+            Inisiatif dan Etika Kerja: ${inisiatif}<br>
+            <strong>Nilai Akhir: ${nilaiAkhir}</strong>
+          </div>
 
           <p style="margin-top: 45px;">
             Admin PKL

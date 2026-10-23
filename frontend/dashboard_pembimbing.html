@@ -144,6 +144,65 @@
       </div>
     </section>
 
+    
+<!-- Menu Penilaian Sertifikat PKL -->
+<section class="card">
+  <h2>Penilaian Sertifikat PKL Siswa</h2>
+  <p>Isi nilai berdasarkan hasil pengamatan selama siswa melaksanakan PKL.</p>
+
+  <form id="formPenilaianSertifikat">
+    <div class="form-group">
+      <label for="siswaPenilaian">Pilih Siswa</label>
+      <select id="siswaPenilaian" required>
+        <option value="">-- Pilih Siswa --</option>
+      </select>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="nilaiDisiplin">Disiplin dan Tanggung Jawab</label>
+        <input type="number" id="nilaiDisiplin"
+               min="0" max="100" step="1" required>
+      </div>
+
+      <div class="form-group">
+        <label for="nilaiAdaptasi">Kemampuan Kerja dan Adaptasi Operasional</label>
+        <input type="number" id="nilaiAdaptasi"
+               min="0" max="100" step="1" required>
+      </div>
+
+      <div class="form-group">
+        <label for="nilaiKualitas">Kualitas dan Ketepatan Hasil Kerja</label>
+        <input type="number" id="nilaiKualitas"
+               min="0" max="100" step="1" required>
+      </div>
+
+      <div class="form-group">
+        <label for="nilaiKomunikasi">Komunikasi dan Kerja Sama Tim</label>
+        <input type="number" id="nilaiKomunikasi"
+               min="0" max="100" step="1" required>
+      </div>
+
+      <div class="form-group">
+        <label for="nilaiInisiatif">Inisiatif dan Etika Kerja</label>
+        <input type="number" id="nilaiInisiatif"
+               min="0" max="100" step="1" required>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="catatanPenilaian">Catatan Pembimbing (opsional)</label>
+      <textarea id="catatanPenilaian" rows="3"
+                placeholder="Catatan hasil penilaian siswa..."></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+      Simpan Penilaian
+    </button>
+  </form>
+</section>
+
+
     <!-- Menu Pantau & Review -->
     <section class="card">
       <h2>Menu Pantau & Review Laporan Siswa</h2>
