@@ -3,6 +3,15 @@
 name = "sistem-pkl"
 version = "1.0.0"
 requires-python = ">=3.12"
-
-[tool.vercel]
-entrypoint = "backend.app.main:app"
+dependencies = [
+    "fastapi>=0.115,<1",
+    "uvicorn[standard]>=0.34,<1",
+    "sqlalchemy>=2.0,<3",
+    "psycopg[binary]>=3.2,<4",
+    "pydantic>=2.10,<3",
+    "pydantic-settings>=2.7,<3",
+    "PyJWT>=2.10,<3",
+    "pwdlib[argon2]>=0.2,<1",
+    "python-multipart>=0.0.20,<1",
+    "supabase>=2.0,<3"
+]
