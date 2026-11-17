@@ -4,6 +4,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class settings(BaseSettings):
     app_name: str = "absensi_pkl_api"
     database_url: str
+    supabase_url: str
+    supabase_service_role_key: str
     database_sslmode: str | None = "require"
     attendance_radius_meters: float = 150.0
     duplicate_windows_minutes: int = 5

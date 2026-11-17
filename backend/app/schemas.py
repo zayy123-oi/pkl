@@ -207,6 +207,7 @@ class ReportOut(ReportBase):
     status_review: Optional[str] = None
     komentar_pembimbing: Optional[str] = None
     foto_laporan: Optional[str] = None
+    foto_url: Optional[str] = None
 
     siswa: Optional[StudentSchema] = None
 

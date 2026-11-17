@@ -428,10 +428,10 @@ if (statusPeriode && student.startPkl && student.endPkl) {
     );
 
     tbodyLaporan.innerHTML = studentReports.map(item => {
-      const fotoHtml = item.foto_laporan
+      const fotoHtml = item.foto_url
   ? `
     <a
-      href="http://127.0.0.1:8000/uploads/laporan/${encodeURIComponent(item.foto_laporan)}"
+      href="${item.foto_url}"
       target="_blank"
       rel="noopener noreferrer"
     >
@@ -1886,6 +1886,7 @@ const daftarSiswa = Array.isArray(hasilSiswa)
             statistik.map(item => [item.id, item])
         );
 
+        
         daftarAbsensi.forEach(absensi => {
             // Hitung absensi masuk saja, bukan absensi keluar.
             if (absensi.attendance_type !== "masuk") return;

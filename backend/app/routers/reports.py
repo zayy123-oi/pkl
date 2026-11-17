@@ -1,6 +1,6 @@
-import os
+
 import uuid
-from pathlib import Path
+from app.supabase_storage import supabase
 from fastapi import APIRouter, HTTPException, Depends, UploadFile,File, Form
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
@@ -12,9 +12,7 @@ from app.schemas import ReportCreate, ReportOut, ReportUpdate
 from app.security import get_current_user
 
 router = APIRouter(prefix="/reports", tags=["reports"])
-UPLOAD_DIR = Path(__file__).resolve().parents[2] / "uploads" / "laporan"
-UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-print("FOLDER FOTO:", UPLOAD_DIR.resolve())
+
 
 ALLOWED_IMAGE_TYPES = {
     "image/jpeg": ".jpg",
@@ -22,6 +20,26 @@ ALLOWED_IMAGE_TYPES = {
     "image/webp": ".webp",
 }
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
+def tambah_foto_url(report):
+    data = ReportOut.model_validate(report)
+
+    if report.foto_laporan:
+        try:
+            hasil = supabase.storage.from_("laporan").create_signed_url(
+                report.foto_laporan,
+                3600
+            )
+
+            foto_url = hasil.get("signedURL") or hasil.get("signedUrl")
+
+            data = data.model_copy(
+                update={"foto_url": foto_url}
+            )
+
+        except Exception as e:
+            print("ERROR MEMBUAT SIGNED URL:", str(e))
+
+    return data
 
 
 @router.post("", response_model=ReportOut, status_code=201)
@@ -30,7 +48,8 @@ def create_report(payload: ReportCreate, db: Session = Depends(get_db), current_
     db.add(report)
     db.commit()
     db.refresh(report)
-    return report
+
+    return tambah_foto_url(report)
 
 def check_student_pkl_period(student: Student):
     today = datetime.now(ZoneInfo("Asia/Jakarta")).date()
@@ -40,6 +59,7 @@ def check_student_pkl_period(student: Student):
             status_code=403,
             detail="Periode PKL kamu sudah berakhir. Pengiriman laporan tidak dapat dilakukan."
         )
+
 
 @router.post("/upload", response_model=ReportOut, status_code=201)
 async def create_report_with_photo(
@@ -53,7 +73,6 @@ async def create_report_with_photo(
     user_role = getattr(current_user, "role", None)
     student_id = getattr(current_user, "student_id", None)
 
-    # Hanya siswa yang boleh mengirim laporan
     if user_role not in ["siswa", "student"]:
         raise HTTPException(
             status_code=403,
@@ -69,14 +88,15 @@ async def create_report_with_photo(
     student = db.get(Student, int(student_id))
 
     if not student:
-     raise HTTPException(
-        status_code=404,
-        detail="Data siswa tidak ditemukan."
-    )
+        raise HTTPException(
+            status_code=404,
+            detail="Data siswa tidak ditemukan."
+        )
 
     check_student_pkl_period(student)
 
     isi_laporan = isi_laporan.strip()
+
     if not isi_laporan:
         raise HTTPException(
             status_code=400,
@@ -84,32 +104,41 @@ async def create_report_with_photo(
         )
 
     nama_file = None
-    path_file = None
-
-    if foto_laporan and foto_laporan.filename:
-        ekstensi = ALLOWED_IMAGE_TYPES.get(foto_laporan.content_type)
-
-        if not ekstensi:
-            raise HTTPException(
-                status_code=400,
-                detail="Format foto harus JPG, PNG, atau WEBP."
-            )
-
-        isi_file = await foto_laporan.read()
-
-        if len(isi_file) > MAX_FILE_SIZE:
-            raise HTTPException(
-                status_code=400,
-                detail="Ukuran foto maksimal 5 MB."
-            )
-
-        nama_file = f"{uuid.uuid4().hex}{ekstensi}"
-        path_file = UPLOAD_DIR / nama_file
-
-        with path_file.open("wb") as file:
-            file.write(isi_file)
+    file_uploaded = False
 
     try:
+        if foto_laporan and foto_laporan.filename:
+            ekstensi = ALLOWED_IMAGE_TYPES.get(
+                foto_laporan.content_type
+            )
+
+            if not ekstensi:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Format foto harus JPG, PNG, atau WEBP."
+                )
+
+            isi_file = await foto_laporan.read()
+
+            if len(isi_file) > MAX_FILE_SIZE:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Ukuran foto maksimal 5 MB."
+                )
+
+            nama_file = f"{uuid.uuid4().hex}{ekstensi}"
+
+            supabase.storage.from_("laporan").upload(
+                path=nama_file,
+                file=isi_file,
+                file_options={
+                    "content-type": foto_laporan.content_type,
+                    "upsert": "false"
+                }
+            )
+
+            file_uploaded = True
+
         report = Report(
             id_siswa=id_siswa,
             id_tugas=id_tugas,
@@ -121,13 +150,22 @@ async def create_report_with_photo(
         db.commit()
         db.refresh(report)
 
-        return report
+        return tambah_foto_url(report)
 
-    except Exception:
+    except HTTPException:
+        db.rollback()
+        raise
+
+    except Exception as e:
         db.rollback()
 
-        if path_file and path_file.exists():
-            path_file.unlink()
+        if file_uploaded and nama_file:
+            try:
+                supabase.storage.from_("laporan").remove([nama_file])
+            except Exception:
+                pass
+
+        print("ERROR UPLOAD LAPORAN:", str(e))
 
         raise HTTPException(
             status_code=500,
@@ -137,6 +175,7 @@ async def create_report_with_photo(
     finally:
         if foto_laporan:
             await foto_laporan.close()
+
 
 
 @router.get("", response_model=list[ReportOut])
@@ -170,7 +209,12 @@ def list_reports(
     if id_tugas:
         stmt = stmt.where(Report.id_tugas == id_tugas)
 
-    return list(db.scalars(stmt).all())
+    reports = list(db.scalars(stmt).all())
+
+    return [
+    tambah_foto_url(report)
+    for report in reports
+]
 
 
 @router.get("/{report_id}", response_model=ReportOut)
@@ -179,7 +223,7 @@ def get_report(report_id: int, db: Session = Depends(get_db), current_user=Depen
     print(report)
     if not report:
         raise HTTPException(status_code=404, detail="Laporan tidak ditemukan")
-    return report
+    return tambah_foto_url(report)
 
 
 @router.patch("/{report_id}", response_model=ReportOut)
@@ -192,7 +236,7 @@ def update_report(report_id: int, payload: ReportUpdate, db: Session = Depends(g
         setattr(report, key, value)
     db.commit()
     db.refresh(report)
-    return report
+    return tambah_foto_url(report)
 
 
 @router.delete("/{report_id}")
