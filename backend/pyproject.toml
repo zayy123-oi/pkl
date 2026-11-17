@@ -13,6 +13,7 @@ dependencies = [
     "PyJWT>=2.10,<3",
     "pwdlib[argon2]>=0.2,<1",
     "python-multipart>=0.0.20,<1",
+    "supabase>=2.0,<3",
 ]
 
 [tool.vercel]
